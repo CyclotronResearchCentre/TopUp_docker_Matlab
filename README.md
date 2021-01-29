@@ -42,3 +42,32 @@ Things to keep track off:
 - Matlab [`system` command](https://nl.mathworks.com/help/matlab/ref/system.html) to execute operating system command and return output.
 - some code/script for the CRC are available [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/sandpit/run_spatial_preproc_topup_realign_applytopup.m) and [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/common/preproc_distcorr_topup_estimate.m). (Note this is on our [ULiege GitLab server](https://gitlab.uliege.be/)).
 
+### Tips & tricks
+
+When installing Docker on a Windows machine it runs in the "Windows containers" mode but one can switch to "Linux containers" ([instructions here](https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers)): right-click on the Docker icon and select "Switch to Linux containers...". This can take up to 1 minute.
+
+To pull the `fsl-topup` container, type `docker pull flywheel/fsl-topup:0.0.3`. There is >1.5GB of data to download and unpack, so it can take a few minutes.
+
+The tool works best on 4D gzipped NIfTI files and one need to provide 2 files:
+
+- `acqparams`, filename of the [acquisition parameters input file](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide#A--datain) for TopUp :arrow_right: where from? See [`spatial_preproc_main` function](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/sandpit/spatial_preproc_main.m).
+- `b02b0` filename of default file for TopUp :arrow_right: available in [Gitlab folder](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/common/b02b0.cnf). 
+
+Note that it seems that the `b02b0.cnf`  file is part of the container, as available on [GitHub from Flywheel](https://github.com/flywheel-apps/fsl-topup). Maybe worth checking the [CRC](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/common/b02b0.cnf) and [Flywheel](https://github.com/flywheel-apps/fsl-topup/blob/master/b02b0.cnf) ones do match.
+
+The format for the `acqparams.txt` goes as follows
+
+> a 4-column table, with as many lines as used for the TOPUP distortion parameters estimation (typically 2 volumes AP and 2 volumes PA). The order of the parameters must consistent with the order of the volumes in the 4D image assembled as input to TOPUP.
+> Columns correspond to i,j,k (x,y,z) PE directions and Readout duration.
+
+For example, first two volumes A>>P and last two volumes P>>A
+
+| Dir x | Dir y | Dir  z | Readout duration (sec) | Comment |
+| ----- | ----- | ------ | ---------------- | ------- |
+| 0     | -1    | 0      | 0.035            | A-P |
+| 0     | -1    | 0      | 0.035            | A-P |
+| 0     | 1    | 0      | 0.035            | P-A |
+| 0     | 1    | 0      | 0.035            | P-A |
+
+The recommended(?) approach is "TopUp estimate" :arrow_right: "Realign & Reslice" :arrow_right: "apply TopUp", as in [`run_spatial_preproc_topup_realign_applytopup.m` function](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/sandpit/run_spatial_preproc_topup_realign_applytopup.m). For the "TopUp estimate", it looks like just 2 volumes in each direction AP/PA are needed.
+
