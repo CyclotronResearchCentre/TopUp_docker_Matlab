@@ -50,6 +50,8 @@ neurodocker generate docker \
         version="${FSL_VERSION}" \
         install_path="/opt/fsl" \
         exclude_paths="doc refdoc man" \
+    --user fsl \
+    --workdir /home/fsl \
     > Dockerfile
 echo "Dockerfile generated at '${TMP_DIR}/Dockerfile'."
 
