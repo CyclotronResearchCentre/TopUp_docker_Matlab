@@ -48,10 +48,10 @@ neurodocker generate docker \
     --pkg-manager=apt \
     --fsl \
         version="${FSL_VERSION}" \
-        install_path="/opt/fsl" \
+        install_path="/fsl" \
         exclude_paths="doc refdoc man" \
-    --user fsl \
-    --workdir /home/fsl \
+    --run "mkdir -p /home/fsl" \
+    --workdir "/home/fsl" \
     > Dockerfile
 echo "Dockerfile generated at '${TMP_DIR}/Dockerfile'."
 
