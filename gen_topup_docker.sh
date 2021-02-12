@@ -2,7 +2,7 @@
 # binaries using neurodocker-minify (https://github.com/ReproNim/neurodocker).
 #
 # USAGE
-#   ./gen_topup_docker.sh [version]
+#   ./gen_topup_docker.sh [version] [date]
 #
 # NOTE
 #   The minification process is performed by pruning the '/opt' directory of the full
@@ -20,7 +20,7 @@ FSL_VERSION=${1:-${FSL_DEFAULT_VERSION}}
 FSL_DATE=${2:-$(date +"%Y%m%d")}
 FSL_IMG="fsl:${FSL_VERSION}-${FSL_DATE}"
 FSL_CONTAINER="fsl-container"
-TOPUP_IMG="topup:${FSL_VERSION}-${FSL_DATE}-test"
+TOPUP_IMG="topup:${FSL_VERSION}-${FSL_DATE}"
 echo ""
 echo "GENERATE DOCKER IMAGE FOR FSL TOPUP (FSL ${FSL_VERSION})"
 echo ""
@@ -35,26 +35,69 @@ if [ ! $(docker images -q "${FSL_IMG}") ]; then
 fi
 
 # Work in a temporary directory
-echo "Moving to temporary directory..."
+echo "Creating temporary directory..."
 SRC_DIR=$(pwd)
 TMP_DIR="/tmp/topup_docker"
 mkdir -p ${TMP_DIR}
+echo "Temporary directory created."
+
+# Copy data
+echo "Copying test data to temporary directory..."
+cp \
+    data/fmap/sub-s011_ses-baseline_dir-PA_epi_4topup.nii \
+    data/func/sub-s011_ses-baseline_task-AXcpt_bold_2topup.nii \
+    data/acq_params.txt \
+    data/b02b0.cnf \
+    ${TMP_DIR}
+echo "Test data copied."
+
+# Move to temporary directory
+echo "Moving to temporary directory..."
 cd ${TMP_DIR}
 echo "Moved to temporary directory '${TMP_DIR}'."
 
-# Follow the instructions from https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/ExampleTopupFollowedByApplytopup
-EXEC_FILE="run.sh"
-cat <<EOT >> ${EXEC_FILE}
-fslroi blip_up b0_blip_up 0 1
-fslroi blip_down b0_blip_down 0 1
-fslmerge -t both_b0 b0_blip_up b0_blip_down
-topup --imain=both_b0 --datain=acq_params.txt --config=b02b0.cnf --out=topup_results
-applytopup --imain=blip_up,blip_down --inindex=1,2 --datatin=acq_params.txt --topup=topup_results --out=my_hifi_images
-EOT
-chmod a+x ${EXEC_FILE}
+# Minify FSL image
+echo "Minifying FSL image..."
+docker run \
+    --rm \
+    -itd \
+    -v $(pwd):/home/fsl \
+    --name fsl-container \
+    --security-opt=seccomp:unconfined \
+    ${FSL_IMG}
+cmd1="topup --imain=sub-s011_ses-baseline_dir-PA_epi_4topup --datain=acq_params.txt --config=b02b0.cnf --out=topup_results --verbose"
+cmd2="applytopup --imain=sub-s011_ses-baseline_task-AXcpt_bold_2topup --inindex=1 --datain=acq_params.txt --topup=topup_results --method=jac --interp=spline --out=hifi_images --verbose"
+printf "y\n" | neurodocker-minify \
+    --container fsl-container \
+    --dirs-to-prune /fsl \
+    --commands "$cmd1" "$cmd2"
+echo "Minification finished."
 
-# Minify docker image
-docker-slim build --target ${FSL_IMG} --tag ${TOPUP_IMG} --http-probe=false --exec-file ${EXEC_FILE}
+# Store resulting image
+echo "Saving minified image..."
+docker export fsl-container | docker import - topup:tmp
+docker stop fsl-container
+echo "Minified image saved as 'topup:tmp'."
+
+# Finalize image
+echo "Finalizing TopUp image..."
+cat <<EOT >> Dockerfile
+FROM topup:tmp
+WORKDIR /home/fsl
+RUN ln -s /fsl/bin/topup /usr/local/bin/topup \
+    && ln -s /fsl/bin/applytopup /usr/local/bin/applytopup
+ENV FSLDIR="/fsl" \
+    FSLOUTPUTTYPE="NIFTI_GZ" \
+    FSLMULTIFILEQUIT="TRUE" \
+    FSLTCLSH="/fsl/bin/fsltclsh" \
+    FSLWISH="/fsl/bin/fslwish" \
+    FSLLOCKDIR="" \
+    FSLMACHINELIST="" \
+    FSLREMOTECALL="" \
+    FSLGECUDAQ="cuda.q"
+EOT
+docker build --rm -t ${TOPUP_IMG} -< Dockerfile
+echo "TopUp image finalized."
 
 # Clean temporary directory
 echo "Cleaning temporary directory..."
