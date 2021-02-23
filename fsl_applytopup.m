@@ -6,27 +6,33 @@
 %   topup (string) : The basename of the topup results.
 %   method (string) : The method to use (e.g. 'jac').
 %   interp (string) : The interpolation method (e.g. 'spline').
-%   out (string) : The basename of the output files.
+%   b_out (string) : The basename of the output files.
 % Returns
 %   status (int) : The exit code of the call.
 %   cmd_out (string) : The stdout of the call.
-function [status, cmd_out] = fsl_applytopup(imain, inindex, datain, topup, method, interp, out)
-    in_files = [imain, datain];
-    topup_res = dir(strcat(topup, '*'));
-    for i = 1:length(topup_res)
-        in_files = [in_files, fullfile(topup_res(i).folder, topup_res(i).name)];
-    end
-    [filepath, imain_name, ext] = fileparts(imain);
-    [filepath, datain_name, datain_ext] = fileparts(datain);
-    [filepath, topup_name, ext] = fileparts(topup);
-    cmd = join(['applytopup', ...
-                strcat('--imain=', imain_name), ...
-                strcat('--inindex=', inindex), ...
-                strcat('--datain=', datain_name, datain_ext), ...
-                strcat('--topup=', topup_name), ...
-                strcat('--method=', method), ...
-                strcat('--interp=', interp), ...
-                strcat('--out=', out), ...
-                '--verbose']);
-    [status, cmd_out] = fsl(cmd, in_files, strcat(out, '*'));
+
+function [status, cmd_out] = fsl_applytopup(imain, inindex, datain, topup, method, interp, b_out)
+
+% List of all necessary file -> to be moved into temp folder
+in_files = char(imain, datain);
+topup_res = dir(strcat(topup, '*'));
+
+for i = 1:length(topup_res)
+    in_files = char(in_files, topup_res(i).name);
+end
+
+[~, imain_name, imain_ext] = fileparts(imain);
+[~, datain_name, datain_ext] = fileparts(datain);
+[~, topup_name, ext] = fileparts(topup);
+cmd = sprintf(['applytopup --imain=%s --inindex=%s --datain=%s ', ...
+               '--topup=%s --method=%s --interp=%s --out=%s --verbose'], ...
+    imain_name, inindex, [datain_name, datain_ext], topup_name, ...
+    method, interp, b_out);
+
+% create regexp filter for output files
+filt_out = ['^', b_out,'.*'];
+
+% call to fsl-topup
+[status, cmd_out] = fsl(cmd, in_files, filt_out);
+
 end
