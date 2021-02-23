@@ -1,14 +1,14 @@
 %% Define FSL function
 % Call FSL from inside a docker image.
 % Parameters
-%   cmd (string) : The command to run inside the docker.
-%   in_files (list[string]) : A list of the input files required by the
+%   cmd (char) : The command to run inside the docker.
+%   in_files (char array) : A list of the input files required by the
 %       command.
-%   out_patterns (list[string]) : A list of patterns matching all the
+%   out_patterns (char array) : A list of patterns matching all the
 %       output files of the command that must be saved.
 % Returns
-%   status (int) : The exit code of the call.
-%   cmd_out (string) : The stdout of the call.
+%   status (int) : The exit code of the call (0/1 for OK/problem).
+%   cmd_out (char) : The stdout of the call.
 % Notes
 %   This function requires the 'DOCKER_EXEC' and 'FSL_IMG' environment
 %   variables to be defined.
