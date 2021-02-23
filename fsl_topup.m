@@ -23,6 +23,6 @@ cmd = sprintf('topup --imain=%s --datain=%s --config=%s --out=%s --verbose', ...
 
 % create regexp filter for output files
 filt_out = ['^', b_out,'.*'];
+% call to fsl-topup
 [status, cmd_out] = fsl(cmd, in_files, filt_out);
-%     [status, cmd_out] = fsl(cmd, in_files, strcat(out, '*'));
 end
