@@ -22,27 +22,37 @@ function [status, cmd_out] = fsl(cmd, in_files, out_patterns)
     err = mkdir(twd);
     if err ~= 1
         status = 0;
-        cmd_out = "Unable to create temporary directory";
+        cmd_out = 'Unable to create temporary directory';
         return
     end
     % Copy all the input files
-    for i = 1 : length(in_files)
-        copyfile(in_files(i), twd);
+    for ii = 1 : size(in_files,1)
+        copyfile(in_files(ii,:), twd);
     end
     % Move to temporary directory
     cd(twd);
     % Run the FSL command
-    docker_exec = getenv("DOCKER_EXEC");
-    fsl_img = getenv("FSL_IMG");
-    docker_cmd = join([docker_exec, "run", "--rm", "-v", strcat(twd, ":", "/home/fsl"), fsl_img]);
-    [status, cmd_out] = system(join([docker_cmd, cmd]), "-echo");
-    % Copy all the output files to the initial directory
-    for i = 1 : length(out_patterns)
-        movefile(out_patterns(i), cwd);
+    docker_exec = getenv('DOCKER_EXEC');
+    fsl_img = getenv('FSL_IMG');
+    docker_cmd = sprintf('%s run --rm -v %s:/home/fsl %s', ...
+        docker_exec, twd, fsl_img);
+%     docker_cmd = join([docker_exec, 'run', '--rm', '-v', strcat(twd, ':', '/home/fsl'), fsl_img]);
+
+    [status, cmd_out] = system( sprintf('%s %s', docker_cmd, cmd) );
+    % Removing the '-echo' which was generating an error
+    
+%     [status, cmd_out] = system(join([docker_cmd, cmd]), '-echo');
+
+% Copy all the output files to the initial directory
+    for ii = 1 :size(out_patterns,1)
+        movefile(out_patterns(ii), cwd);
     end
     % Clean temporary directory and go back to initial directory
-    delete("*");
+    delete('*');
     cd(cwd);
     rmdir(twd);
-    isfolder(twd)
+    if ~exist(twd,'dir')
+        fprintf('\nTemporary folder removed');
+    end
+%     isfolder(twd)
 end
