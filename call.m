@@ -4,8 +4,9 @@ clear all; close all; clc; %#ok<*CLALL>
 setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
 setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
-%% Prepares topup
-[status, cmd_out] = fsl('pwd', char('gen_fsl_docker.sh', 'gen_topup_docker.sh'), '*');
+%% Prepares topup?
+[status, cmd_out] = fsl('pwd', ...
+    char('gen_fsl_docker.sh', 'gen_topup_docker.sh'), '.*'); % using regexp
 
 %% Run topup
 % list filename of input

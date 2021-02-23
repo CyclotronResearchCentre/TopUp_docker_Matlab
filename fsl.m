@@ -47,6 +47,7 @@ if status % something went wrong
 end
 % Copy all the output files to the initial directory, based on regexp
 fn_list = ls; % list of current files
+fn_list(1:2,:) = []; % removing current and up folder.
 for ii = 1:size(out_patterns,1)
     fn_mv = file_filter(fn_list,out_patterns(ii,:));
     for jj = 1:size(fn_mv,1)
