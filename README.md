@@ -39,8 +39,11 @@ Things to keep track off:
 
 - the [TopUp page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup) on the FSL website.
 - [Docker](https://hub.docker.com/) host a FSL-topup container [here](https://hub.docker.com/r/flywheel/fsl-topup). It looks like it was put there by [FlyWheel](https://flywheel.io/) people but it doesn't matter.
+  :arrow_right: **UPDATE** the docker mentioned here works only for *FlyWheel*! So we need something else.
 - Matlab [`system` command](https://nl.mathworks.com/help/matlab/ref/system.html) to execute operating system command and return output.
 - some code/script for the CRC are available [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/sandpit/run_spatial_preproc_topup_realign_applytopup.m) and [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/common/preproc_distcorr_topup_estimate.m). (Note this is on our [ULiege GitLab server](https://gitlab.uliege.be/)).
+
+The "TopUp" tool is part of FSL, for which there exist a docker. Trouble is this is the 'full monty' and thus very heavy if one only needs TopUp... See issue #2 for a potential solution
 
 ### Tips & tricks
 
