@@ -36,9 +36,11 @@ fsl_applytopup( ...
 
 %% TESTING new version
 
-[status, cmd_out] = fsl('pwd', [], '.*'); % using regexp
+% Sanity check
+[status, cmd_out] = fsl('pwd', [], '.*'); %#ok<*ASGLU> % using regexp
 
-
+% TopUp Estimate
+% ==============
 % 4D volume with AP/PA data (2 vols each)
 fn_data = 'C:\3_Code\topup_docker_data\TestData\fmap\sub-s011_ses-baseline_dir-PA_epi_4topup.nii';
 % Parameter and config file
@@ -50,3 +52,17 @@ fn_cnf      = 'C:\3_Code\topup_docker_data\TestData\b02b0.cnf';
 [status, cmd_out] = crc_topup_estimate( ...
     fn_data, fn_acqParam, fn_cnf, char('TUsc_','TUhf_') );
 
+% TopUp Apply
+% ===========
+fn_data_cor = 'C:\3_Code\topup_docker_data\TestData\func\sub-s011_ses-baseline_task-AXcpt_bold_2topup.nii';
+fn_acqParam = 'C:\3_Code\topup_docker_data\TestData\acqparams.txt';
+
+[status, cmd_out] = crc_topup_apply( ...
+    fn_data_cor, ... % data to correct
+    '1', ...         % index for acquistion parameter line
+    fn_acqParam, ... % acquisition parameters
+    'TUsc_', ...     % prefix of spline coef file
+    'jac', ...       % method to use
+    'spline', ...    % interpolation method
+    'TUw_', ....     % prefix of resulting file
+    'C:\3_Code\topup_docker_data\TestData\fmap\' ); % path to the spline coef
