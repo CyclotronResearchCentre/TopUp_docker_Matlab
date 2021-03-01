@@ -33,3 +33,20 @@ fsl_applytopup( ...
     'jac', ...
     'spline', ...
     'hifi_images');
+
+%% TESTING new version
+
+[status, cmd_out] = fsl('pwd', [], '.*'); % using regexp
+
+
+% 4D volume with AP/PA data (2 vols each)
+fn_data = 'C:\3_Code\topup_docker_data\TestData\fmap\sub-s011_ses-baseline_dir-PA_epi_4topup.nii';
+% Parameter and config file
+fn_acqParam = 'C:\3_Code\topup_docker_data\TestData\acqparams.txt';
+fn_cnf      = 'C:\3_Code\topup_docker_data\TestData\b02b0.cnf';
+
+% Call, with prefix 'TUsc_' & 'TUhf_' for the 2 output (spline coefs and 
+% Hertz field)
+[status, cmd_out] = crc_topup_estimate( ...
+    fn_data, fn_acqParam, fn_cnf, char('TUsc_','TUhf_') );
+
