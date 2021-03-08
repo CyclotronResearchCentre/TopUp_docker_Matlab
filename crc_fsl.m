@@ -28,7 +28,7 @@ fsl_img = getenv('FSL_IMG');
 docker_cmd = sprintf('%s run --rm -v %s:/home/fsl %s', ...
     docker_exec, twd, fsl_img);
 
-% Removing the '-echo' which was generating an error
+% Send the 'cmd' to the Docker via the 'docker_cmd'
 full_cmd = sprintf('%s %s', docker_cmd, cmd);
 [status, cmd_out] = system( full_cmd );
 

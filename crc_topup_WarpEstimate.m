@@ -51,8 +51,7 @@ fn_fmapfunc4D_topup = spm_file(fnD1(1,:),'suffix','_4topup');
 V4fmapfunc4D_topup = spm_file_merge(char(fnD1,fnD2),fn_fmapfunc4D_topup); %#ok<*NASGU>
 
 %% Estimate the warps
-
-% Call to create the 2 output.
+% Call to mid-level function to create the 2 output.
 [status, cmd_out] = crc_topup_estimate( ...
     fn_fmapfunc4D_topup, fnAcqpar, fnConfig, char(pref_hf,pref_hf) );
 if status
