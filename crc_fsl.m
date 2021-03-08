@@ -15,9 +15,9 @@
 %   This function works in a temporary directory and copies all the
 %   required input files into that directory.
 %__________________________________________________________________________
-% Copyright (C) 2020 Cyclotron Research Centre
+% Copyright (C) 2021 Cyclotron Research Centre
 
-% Written by M. Grignard & C. Phillips, 2020.
+% Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
 function [status, cmd_out] = crc_fsl(cmd, twd)

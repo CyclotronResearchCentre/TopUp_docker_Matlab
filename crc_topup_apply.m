@@ -18,9 +18,9 @@
 % https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/ApplyTopupUsersGuide
 % 
 %__________________________________________________________________________
-% Copyright (C) 2020 Cyclotron Research Centre
+% Copyright (C) 2021 Cyclotron Research Centre
 
-% Written by M. Grignard & C. Phillips, 2020.
+% Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
 

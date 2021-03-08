@@ -16,9 +16,9 @@
 % References for the TopUp tool:
 % https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide
 %__________________________________________________________________________
-% Copyright (C) 2020 Cyclotron Research Centre
+% Copyright (C) 2021 Cyclotron Research Centre
 
-% Written by M. Grignard & C. Phillips, 2020.
+% Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
 function [status, cmd_out] = crc_topup_estimate(imain, datain, config, b_out)
