@@ -66,3 +66,31 @@ fn_acqParam = 'C:\3_Code\topup_docker_data\TestData\acqparams.txt';
     'spline', ...    % interpolation method
     'TUw_', ....     % prefix of resulting file
     'C:\3_Code\topup_docker_data\TestData\fmap\' ); % path to the spline coef
+
+%% Work on high-level functions
+
+% Call to docker for checks
+system('docker -v') % return the current version
+system('docker-machine restart') % launch daemon
+[status, cmd_out] = system('docker images') % 
+system('docker start --help') % 
+system('docker system info') % 
+
+% Prepare 3D images for test
+dData = 'C:\3_Code\topup_docker_data\TestData';
+fn_fmap4D = spm_select('FPList',fullfile(dData,'fmap'),'^sub.*epi_2topup\.nii$');
+fn_func4D = spm_select('FPList',fullfile(dData,'func'),'^sub.*bold_2topup\.nii$');
+
+V_fmap3D = spm_file_split(fn_fmap4D, spm_file(fn_fmap4D,'path'));
+V_func3D = spm_file_split(fn_func4D, spm_file(fn_func4D,'path'));
+
+% Defining input images + acqparam + config
+% fnD1 = char(V_fmap3D(:).fname); fnD2 = char(V_func3D(:).fname);
+fnD1 = spm_select('FPList',fullfile(dData,'fmap'),'^sub.*epi_2topup_(\d+).nii$');
+fnD2 = spm_select('FPList',fullfile(dData,'func'),'^sub.*bold_2topup_(\d+).nii$');
+fnAcqpar = fullfile(dData,'fmap','acqparams.txt');
+fnConfig = fullfile(dData,'fmap','b02b0.cnf');
+
+% Call high-level function to estimate warps
+[fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig)
+
