@@ -1,11 +1,11 @@
-function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig,dOut)
+function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1, fnD2, fnAcqpar, fnConfig, dOut)
 % High-level function to estimate the topup warps from 2 sets of image.
 % 
 % INPUT
-% fnD1      : 1st set (char array) of 3D images (reverse PE)  -> 'fmap'
-% fnD2      : 2nd set (char array) of 3D images (straight PE) -> 'func'
+% fnD1      : 1st set (char array) of 3D images (straight PE) -> 'func'
+% fnD2      : 2nd set (char array) of 3D images (reverse PE)  -> 'fmap'
 % fnAcqpar  : filename of corresping acquisition parameters of fnD1/2
-% fnConfig  : filename of default TU config parameters
+% fnConfig  : filename of default TopUp config parameters
 % dOut      : output folder [optional]
 % 
 % OUTPUT
@@ -14,13 +14,19 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig
 % 
 % NOTES
 % 1/ The results and intermediary files are placed in the 'dOUT' folder. If
-%   this one is not provided or left empty, then the folder of the 1st set 
-%   of images is used. Therefore the recommended order for the images is to
-%   set
-%   - the "fmap" (i.e. reverse PE) as 1st set
-%   - the "func" or "dwi" (i.e. straight PE) as 2nd set
+%   this one is not provided or left empty, then the folder of the 2nd set 
+%   of images is used. 
+%   Therefore the recommended order for the images is to set
+%   - the "func" or "dwi" (i.e. straight PE) as 1st set
+%   - the "fmap" (i.e. reverse PE) as 2nd set
 % 2/ The acquisition parameter and config files are typically available in
 %   the "fmap" folder.
+% 
+% TO CHECK
+% - If frames from a 4D image file are passed in fnD1 ou fnD2 instead or a 
+%   list of 3D images, will this work?
+% - Must check the input formats and match with the acquisition parameter
+%   file
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
 
@@ -42,7 +48,7 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 %% Dealing with the output folder
 if nargin<5 || isempty(dOut)
     % Define output folder as that of 1st set of images
-    dOut = spm_file(fnD1(1,:),'fpath');
+    dOut = spm_file(fnD2(1,:),'fpath');
 end
 if ~exist(dOut,'dir'), mkdir(dOut); end
 
