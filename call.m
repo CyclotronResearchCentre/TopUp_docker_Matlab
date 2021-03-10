@@ -56,16 +56,16 @@ fn_cnf      = 'C:\3_Code\topup_docker_data\TestData\b02b0.cnf';
 % ===========
 fn_data_cor = 'C:\3_Code\topup_docker_data\TestData\func\sub-s011_ses-baseline_task-AXcpt_bold_2topup.nii';
 fn_acqParam = 'C:\3_Code\topup_docker_data\TestData\acqparams.txt';
+fn_topupSC  = 'C:\3_Code\topup_docker_data\TestData\fmap\TUsc_sub-s011_ses-baseline_dir-PA_epi_2topup_00001_4topup_fieldcoef.nii.gz';
 
 [status, cmd_out] = crc_topup_apply( ...
     fn_data_cor, ... % data to correct
-    '1', ...         % index for acquistion parameter line
     fn_acqParam, ... % acquisition parameters
-    'TUsc_', ...     % prefix of spline coef file
+    '1', ...         % index for acquistion parameter line
+    fn_topupSC, ...  % topup spline coeficients
     'jac', ...       % method to use
     'spline', ...    % interpolation method
-    'TUw_', ....     % prefix of resulting file
-    'C:\3_Code\topup_docker_data\TestData\fmap\' ); % path to the spline coef
+    'TUw2_');         % prefix of resulting file
 
 %% Work on high-level functions
 
