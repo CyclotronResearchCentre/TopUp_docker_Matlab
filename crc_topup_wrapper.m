@@ -1,4 +1,4 @@
-function crc_topup_wrapper
+function crc_topup_wrapper(fn_func,fn_fmap)
 % Function to automatize the processing by taking as input the set of
 % many functional images to unwarp & realign, plus a few "fieldmap" images 
 % with the phase-encdoding in the opposite direction.
@@ -25,6 +25,13 @@ function crc_topup_wrapper
 
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
+
+%% Estimate the warps from a subset of func & fmap images 
+% Example 2 images with PE straight and reverse
+[fn_TUsc, fn_TUhz] = ...
+    crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig,dOut);
+
+%% Realign and resample the functional data
 
 %% Apply the warps
 % Call to mid-level function to apply the unwarping
