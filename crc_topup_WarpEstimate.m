@@ -1,11 +1,11 @@
-function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1, fnD2, fnAcqpar, fnConfig, dOut)
+function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn_Config, dOut)
 % High-level function to estimate the topup warps from 2 sets of image.
 % 
 % INPUT
-% fnD1      : 1st set (char array) of 3D images (straight PE) -> 'func'
-% fnD2      : 2nd set (char array) of 3D images (reverse PE)  -> 'fmap'
-% fnAcqpar  : filename of corresping acquisition parameters of fnD1/2
-% fnConfig  : filename of default TopUp config parameters
+% fn_D1      : 1st set (char array) of 3D images (straight PE) -> 'func'
+% fn_D2      : 2nd set (char array) of 3D images (reverse PE)  -> 'fmap'
+% fn_Acqpar  : filename of corresping acquisition parameters of fn_D1/2
+% fn_Config  : filename of default TopUp config parameters
 % dOut      : output folder [optional]
 % 
 % OUTPUT
@@ -23,7 +23,7 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1, fnD2, fnAcqpar, fnCon
 %   the "fmap" folder.
 % 
 % TO CHECK
-% - If frames from a 4D image file are passed in fnD1 ou fnD2 instead or a 
+% - If frames from a 4D image file are passed in fn_D1 ou fn_D2 instead or a 
 %   list of 3D images, will this work?
 % - Must check the input formats and match with the acquisition parameter
 %   file
@@ -36,8 +36,8 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1, fnD2, fnAcqpar, fnCon
 %% No check on input for the moment
 
 %% Parameters
-pref_sc = 'TUsc_'; % estimated spline coeficients
-pref_hf = 'TUhf_'; % estimated field in Hertz
+pref_sc = 'TUsc_'; % estimated spline coefficients
+pref_hf = 'TUfh_'; % estimated field in Hertz
 
 %% Setup, Docker attributes
 % -> should it be defined somewhere else or if at all?
@@ -48,18 +48,18 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 %% Dealing with the output folder
 if nargin<5 || isempty(dOut)
     % Define output folder as that of 1st set of images
-    dOut = spm_file(fnD2(1,:),'fpath');
+    dOut = spm_file(fn_D2(1,:),'fpath');
 end
 if ~exist(dOut,'dir'), mkdir(dOut); end
 
 %% Combine the 2 sets of 3D images into a 4D image
-fn_fmapfunc4D_topup = spm_file(fnD1(1,:),'suffix','_4topup');
-V4fmapfunc4D_topup = spm_file_merge(char(fnD1,fnD2),fn_fmapfunc4D_topup); %#ok<*NASGU>
+fn_fmapfunc4D_topup = spm_file(fn_D1(1,:),'suffix','_4topup');
+V4fmapfunc4D_topup = spm_file_merge(char(fn_D1,fn_D2),fn_fmapfunc4D_topup); %#ok<*NASGU>
 
 %% Estimate the warps
 % Call to mid-level function to create the 2 output.
 [status, cmd_out] = crc_topup_estimate( ...
-    fn_fmapfunc4D_topup, fnAcqpar, fnConfig, char(pref_hf,pref_hf) );
+    fn_fmapfunc4D_topup, fn_Acqpar, fn_Config, char(pref_hf,pref_hf) );
 if status
     err_msg = sprintf(['\nThere was a problem.', ...
         '\n\tHere is the error message collected:', ...
