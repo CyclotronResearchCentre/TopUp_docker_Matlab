@@ -11,6 +11,9 @@ function fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 % fnwd      : set (char array) of unwarped 3D images of images
 % 
 % NOTES
+% Still need to check
+% - the filename format when splitting/merging 3D<->4D files
+% - the file acq_parameters
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
 
@@ -26,6 +29,9 @@ setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
 setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Prepare images
+% Use spm_file_merge function to 3D->4D pack the set of images
+fn_data_cor = spm_file(fn_D,'suffix','_4D');
+V4 = spm_file_merge(fn_D, fn_data_cor);
 
 %% Apply the warps
 % Call to mid-level function to apply the unwarping
@@ -39,9 +45,17 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
     'spline', ...    % interpolation method
     pref_uw);         % prefix of resulting file
 
-% [status, cmd_out] = crc_topup_apply(fn_imain, fn_datain, inindex, ...
-%     fn_topup, method, interp, b_out);
+% Wheck if there was a problem and return error message
+if status
+    err_msg = sprintf(['\nThere was a problem.', ...
+        '\n\tHere is the error message collected:', ...
+        '\n\t%s\n'],cmd_out);
+    error('DockerTU:WarpEstimate',err_msg); %#ok<*SPERR>
+end
 
 %% Unpack images
+% Use spm_file_split.m function to 4D->3D split the set of images
+Vo = spm_file_split(spm_file(fn_data_cor,'prefix',pref_uw));
+fn_uwD = char(Vo(:).fname);
 
 end
