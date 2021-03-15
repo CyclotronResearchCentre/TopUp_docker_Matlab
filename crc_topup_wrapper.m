@@ -29,13 +29,12 @@ function crc_topup_wrapper(fn_func,fn_fmap)
 %% Estimate the warps from a subset of func & fmap images 
 % Example 2 images with PE straight and reverse
 [fn_TUsc, fn_TUhz] = ...
-    crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig,dOut);
+    crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn_Config, dOut); %#ok<*ASGLU>
 
 %% Realign and resample the functional data
 
 %% Apply the warps
 % Call to mid-level function to apply the unwarping
-[status, cmd_out] = crc_topup_apply(imain, inindex, datain, topup, ...
-    method, interp, b_out,pth_tuc);
+fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc);
 
 end
