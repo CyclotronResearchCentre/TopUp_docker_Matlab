@@ -24,7 +24,7 @@ if status
     fprintf('\n');
 else
     S = regexp(cmd_out,'topup','once');
-    if ~isempty(S)
+    if isempty(S)
         fprintf('\nThere was a problem.');
         fprintf('\n\tThe "topup" image is not available.');
         fprintf('\n\tHere is the error message collected:');
@@ -32,7 +32,8 @@ else
         fprintf('\n');        
         flag = false;
     else
-        fprintf('\nInstallation of "topup" docker seems fine.');
+        fprintf('\nInstallation of "topup" docker seems fine:');
+        fprintf('\n%s',cmd_out);
         fprintf('\n');        
     end
 end
