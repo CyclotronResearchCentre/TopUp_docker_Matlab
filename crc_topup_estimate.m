@@ -1,4 +1,4 @@
-%% TopUp estimate, low level function
+%% TopUp estimate, medium level function
 % 
 % This function calls topup from inside the docker image to estimate:
 % - the deformation field (spline coefficients to be used with TopUpApply)

@@ -1,4 +1,4 @@
-%% Apply TopUp, low level function
+%% Apply TopUp, medium level function
 % 
 % This function calls "applytopup" from inside the docker image.
 % Parameters
