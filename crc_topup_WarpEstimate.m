@@ -52,14 +52,14 @@ if nargin<5 || isempty(dOut)
 end
 if ~exist(dOut,'dir'), mkdir(dOut); end
 
-%% Combine the 2 sets of 3D images into a 4D image
-fn_fmapfunc4D_topup = spm_file(fn_D1(1,:),'suffix','_4topup');
+%% Combine the 2 sets of 3D images into a 4D image for Topup estimate
+fn_fmapfunc4D_topup = spm_file(fn_D1(1,:),'suffix','_4TUest');
 V4fmapfunc4D_topup = spm_file_merge(char(fn_D1,fn_D2),fn_fmapfunc4D_topup); %#ok<*NASGU>
 
 %% Estimate the warps
 % Call to mid-level function to create the 2 output.
 [status, cmd_out] = crc_topup_estimate( ...
-    fn_fmapfunc4D_topup, fn_Acqpar, fn_Config, char(pref_hf,pref_hf) );
+    fn_fmapfunc4D_topup, fn_Acqpar, fn_Config, char(pref_sc,pref_hf) );
 
 % Wheck if there was a problem and return error message
 if status
@@ -72,5 +72,11 @@ end
 fn_TUsc = spm_file(fn_fmapfunc4D_topup, ...
     'prefix',pref_sc, 'suffix','_fieldcoef', 'ext','.nii.gz');
 fn_TUhz = spm_file(fn_fmapfunc4D_topup, 'prefix',pref_hf, 'ext','.nii.gz');
+
+%% Clean up the plate
+% Should be removing the files that are not needed any more?
+% - the 4D file created for the estimation
+% - parameter and config files
+% 
 
 end
