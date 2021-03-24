@@ -65,7 +65,7 @@ fn_topupSC  = 'C:\3_Code\topup_docker_data\TestData\fmap\TUsc_sub-s011_ses-basel
     fn_topupSC, ...  % topup spline coeficients
     'jac', ...       % method to use
     'spline', ...    % interpolation method
-    'TUw2_');         % prefix of resulting file
+    'TUw_');         % prefix of resulting file
 
 %% Work on high-level functions
 
@@ -92,5 +92,38 @@ fnAcqpar = fullfile(dData,'fmap','acqparams.txt');
 fnConfig = fullfile(dData,'fmap','b02b0.cnf');
 
 % Call high-level function to estimate warps
-[fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig)
+[fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fnD1,fnD2,fnAcqpar,fnConfig);
+
+%% Check high-level functions and wrapper, with full func/fmap set
+
+% get 4D files
+pth_BIDSderiv = 'C:\3_Code\topup_docker_data\derivatives\testTopUp';
+fn_func4D = spm_select('FPListRec',pth_BIDSderiv,'^sub-.*_bold\.nii$');
+fn_fmap4D = spm_select('FPListRec',pth_BIDSderiv,'^sub-.*_epi\.nii$');
+% split into 3D files
+V_func3D = spm_file_split(fn_func4D, spm_file(fn_func4D,'path'));
+V_fmap3D = spm_file_split(fn_fmap4D, spm_file(fn_fmap4D,'path'));
+% Ditch the 1st 6 dummies
+Ndum = 6;
+pth_Dfunc = fullfile(spm_file(fn_func4D,'path'),'dummies'); mkdir(pth_Dfunc)
+pth_Dfmap = fullfile(spm_file(fn_fmap4D,'path'),'dummies'); mkdir(pth_Dfmap)
+for ii = 1:Ndum
+    movefile( char(V_func3D(ii).fname), pth_Dfunc)
+    movefile( char(V_fmap3D(ii).fname), pth_Dfunc)
+end
+fn_func3D = char(V_func3D(Ndum+1:end).fname);
+fn_fmap3D = char(V_fmap3D(Ndum+1:end).fname);
+
+% Estimate TopUp
+pth_param = 'C:\3_Code\topup_docker_data';
+fn_Acqpar = fullfile(pth_param,'acqparams.txt');
+fn_Config = fullfile(pth_param,'b02b0.cnf');
+
+fn_D1 = fn_func3D(1:2,:);
+fn_D2 = fn_fmap3D(1:2,:);
+[fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fn_D1,fn_D2,fn_Acqpar,fn_Config);
+
+% Apply TopUp
+fn_uwD = crc_topup_WarpApply(fn_func3D, fn_Acqpar, fn_TUsc);
+
 
