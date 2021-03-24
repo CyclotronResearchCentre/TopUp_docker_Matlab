@@ -2,7 +2,7 @@ function fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 % High-level function to apply the topup unwarp to one set of images
 % 
 % INPUT
-% fn_D       : set (char array) of 3D images to unwarp
+% fn_D      : set (char array) of 3D images to unwarp
 % fn_Acqpar : filename of corresping acquisition parameters, where the 1st
 %            line MUST match the data to correct in fn_D
 % fn_TUsc   : filename of spline coeficients (.nii.gz image)
@@ -30,7 +30,10 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Prepare images
 % Use spm_file_merge function to 3D->4D pack the set of images
-fn_data_cor = spm_file(fn_D,'suffix','_4D');
+fn_data_cor = spm_file(fn_D(1,:),'suffix','_4D');
+% Note:
+% should remove the indexes at the end of the filename, as added when
+% unpacking 4D->3D volume swith SPM
 V4 = spm_file_merge(fn_D, fn_data_cor);
 
 %% Apply the warps
@@ -55,7 +58,15 @@ end
 
 %% Unpack images
 % Use spm_file_split.m function to 4D->3D split the set of images
+% but first need to unzip the resulting file
+gunzip(spm_file([fn_data_cor,'.gz'],'prefix',pref_uw))
+
 Vo = spm_file_split(spm_file(fn_data_cor,'prefix',pref_uw));
 fn_uwD = char(Vo(:).fname);
+
+%% TO DO
+% There remain a few points to address:
+% - dealing with the filenames from the 3D->4D->3D trnasformations
+% - cleaning up crumble files afterwards.
 
 end
