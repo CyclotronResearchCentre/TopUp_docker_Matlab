@@ -60,7 +60,7 @@ Functions are split in 3 layers: law, medium & high level functions. Note that t
 
 - `crc_topup_WarpEstimate` estimates warps based based on a few 3D images acquired with opposite phase-encoding directions. It needs the appropriately corresponding acquisition parameter file too.
 - `crc_topup_WarpApply` applies the estimated warps on a series of 3D images. The images must correspond to the 1st line of the acquisition parameter file.
-- `crc_topup_wrapper` provides the full solution for a series of 3D images and a few images acquired with opposite phase-encoding directions: 
+- `crc_topup_Wrapper` provides the full solution for a series of 3D images and a few images acquired with opposite phase-encoding directions: 
   1. estimate the "warps" with `crc_topup_WarpEstimate`
   2. perform the "Realign & Estimate" step with SPM
   3. apply the estimated "warps" on the realigned images
@@ -69,5 +69,9 @@ Functions are split in 3 layers: law, medium & high level functions. Note that t
 
 ## Using the "high level" functions
 
+qsdf
 
+---
+## NOTES
 
+While the input data are in `int16` format, the images obtained after the topup correction are in `float32` format! Not sure if such a resolution is necessary and, morover this could have some impact on how implicit masking is handled in SPM: zero is a valid value in `float32` but masked out in `int16`.

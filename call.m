@@ -127,3 +127,5 @@ fn_D2 = fn_fmap3D(1:2,:);
 fn_uwD = crc_topup_WarpApply(fn_func3D, fn_Acqpar, fn_TUsc);
 
 
+% Test wrapper
+fn_urfunc = crc_topup_Wrapper(fn_func3D,fn_fmap3D, fn_Acqpar, fn_Config);

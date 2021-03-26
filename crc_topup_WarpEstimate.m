@@ -2,7 +2,7 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn
 % High-level function to estimate the topup warps from 2 sets of image.
 % 
 % INPUT
-% fn_D1      : 1st set (char array) of 3D images (straight PE) -> 'func'
+% fn_D1      : 1st set (char array) of 3D images (PE) -> 'func'
 % fn_D2      : 2nd set (char array) of 3D images (reverse PE)  -> 'fmap'
 % fn_Acqpar  : filename of corresping acquisition parameters of fn_D1/2
 % fn_Config  : filename of default TopUp config parameters
