@@ -1,4 +1,4 @@
-function fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
+function fn_uwd = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 % High-level function to apply the topup unwarp to one set of images
 % 
 % INPUT
@@ -8,12 +8,12 @@ function fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 % fn_TUsc   : filename of spline coeficients (.nii.gz image)
 % 
 % OUTPUT
-% fnwd      : set (char array) of unwarped 3D images of images
+% fn_uwd      : set (char array) of unwarped 3D images of images
 % 
 % NOTES
-% Still need to check
-% - the filename format when splitting/merging 3D<->4D files
-% - the file acq_parameters
+% The outputfile from the TopUp unwarping is in Float32 format, depsite the
+% fact that input images are in Int16. Not sure if it matters but it would
+% be nicer to avoid data bloating because of the format change...
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
 
@@ -22,6 +22,8 @@ function fn_uwD = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 
 %% Parameters
 pref_uw = 'TUu_'; % prefix of resulting unwapred image file
+suff_4D = '_4D';  % suffix used for the 4D file with images to correct
+flag_clean = true; % flag indicating the cleaning of intermediate files
 
 %% Setup, Docker attributes
 % -> should it be defined somewhere else or if at all?
@@ -30,17 +32,18 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Prepare images
 % Use spm_file_merge function to 3D->4D pack the set of images
-fn_data_cor = spm_file(fn_D(1,:),'suffix','_4D');
-% Note:
-% should remove the indexes at the end of the filename, as added when
-% unpacking 4D->3D volume swith SPM
-V4 = spm_file_merge(fn_D, fn_data_cor);
+% removing the _01234 indexing suffix from spm_split
+
+fn_data_2cor = spm_file( ...
+    crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'), ... % removing trailing file index,
+    'suffix',suff_4D); % Adding 4D suffix
+V4 = spm_file_merge(fn_D, fn_data_2cor); %#ok<*NASGU>
 
 %% Apply the warps
 % Call to mid-level function to apply the unwarping
 
 [status, cmd_out] = crc_topup_apply( ...
-    fn_data_cor, ... % data to correct
+    fn_data_2cor, ... % data to correct
     fn_Acqpar, ... % acquisition parameters
     '1', ...         % index for acquistion parameter line
     fn_TUsc, ...  % topup spline coeficients
@@ -56,17 +59,28 @@ if status
     error('DockerTU:WarpEstimate',err_msg); %#ok<*SPERR>
 end
 
+if flag_clean, delete(fn_data_2cor), end
+
 %% Unpack images
 % Use spm_file_split.m function to 4D->3D split the set of images
 % but first need to unzip the resulting file
-gunzip(spm_file([fn_data_cor,'.gz'],'prefix',pref_uw))
+fn_data_cord = spm_file(fn_data_2cor,'prefix',pref_uw);
+fn_data_cord_gz = [fn_data_cord,'.gz'];
+gunzip(fn_data_cord_gz)
 
-Vo = spm_file_split(spm_file(fn_data_cor,'prefix',pref_uw));
-fn_uwD = char(Vo(:).fname);
+% Renaming the 4D file *without* suffix, 
+% for shorter/simpler file naming after splitting back in 3D
+fn_data_cord_nosf = crc_rm_suffix(fn_data_cord,[suff_4D,'$']);
+movefile(fn_data_cord,fn_data_cord_nosf)
 
-%% TO DO
-% There remain a few points to address:
-% - dealing with the filenames from the 3D->4D->3D trnasformations
-% - cleaning up crumble files afterwards.
+% Split back in 3D
+Vo = spm_file_split(fn_data_cord_nosf);
+fn_uwd = char(Vo(:).fname);
+
+% Cleaning, if requested
+if flag_clean 
+    delete(fn_data_cord_gz)
+    delete(fn_data_cord_nosf)
+end
 
 end
