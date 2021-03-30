@@ -4,9 +4,11 @@ function fn_out = crc_rm_suffix(fn_in, regexp_filt)
 % after splitting a 4D image file with spm_split, should use '_\d{5,5}$'
 % as this picks the index of '_' followed by 5 digits at the end of the
 % filename.
+% 
 % Note that 
 % - the function does NOT check the validity of the regexp passed
-% - some/all the output filenames could be the same
+% - to remove a suffix, it should actually end with $
+% - some/all the resulting output filenames could be the same
 % 
 % INPUT
 % fn_in         : (char/cell array of) filename(s) to consider
