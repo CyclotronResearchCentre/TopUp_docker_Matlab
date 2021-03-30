@@ -128,4 +128,4 @@ fn_uwD = crc_topup_WarpApply(fn_func3D, fn_Acqpar, fn_TUsc);
 
 
 % Test wrapper
-fn_urfunc = crc_topup_Wrapper(fn_func3D,fn_fmap3D, fn_Acqpar, fn_Config);
+[fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func3D,fn_fmap3D, fn_Acqpar, fn_Config);
