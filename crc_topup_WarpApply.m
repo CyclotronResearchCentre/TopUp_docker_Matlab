@@ -1,14 +1,21 @@
-function fn_uwd = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
-% High-level function to apply the topup unwarp to one set of images
+function [fn_uwd, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, fl_mean)
+% High-level function to apply the topup unwarp to one set of images.
+% Takes in the bunch of images to correct an "acquisition parameter" file
+% whose 1st line match that of the data to correct, and the spline
+% coeficient image. 
+% If a mean image is included as the last image of the series, then it is
+% recovered on its own at then end if the flag is set to 1!
 % 
 % INPUT
 % fn_D      : set (char array) of 3D images to unwarp
 % fn_Acqpar : filename of corresping acquisition parameters, where the 1st
-%            line MUST match the data to correct in fn_D
+%             line MUST match the data to correct in fn_D
 % fn_TUsc   : filename of spline coeficients (.nii.gz image)
+% fl_mean   : flag indicating the mean image is last of the seris
 % 
 % OUTPUT
 % fn_uwd      : set (char array) of unwarped 3D images of images
+% fn_umean    : filename of unwarped mean image
 % 
 % NOTES
 % The outputfile from the TopUp unwarping is in Float32 format, depsite the
@@ -20,10 +27,20 @@ function fn_uwd = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc)
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
-%% Parameters
-pref_uw = 'TUu_'; % prefix of resulting unwapred image file
+%% Parameters & checks
+pref_uw = 'u'; % prefix of resulting unwapred image file
 suff_4D = '_4D';  % suffix used for the 4D file with images to correct
-flag_clean = true; % flag indicating the cleaning of intermediate files
+fl_clean = true; % flag indicating the cleaning of intermediate files
+if nargin<4,
+    % assume the last image of the input series is just another image and 
+    % NOT the mean image from realign & reslice
+    fl_mean = false;
+end
+
+if nargout==2 && ~fl_mean
+    warning('Topup:Apply', ...
+        'The mean file is not flagged up so the returned filename will be empty!');
+end
 
 %% Setup, Docker attributes
 % -> should it be defined somewhere else or if at all?
@@ -35,9 +52,13 @@ setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 % removing the _01234 indexing suffix from spm_split
 
 fn_data_2cor = spm_file( ...
-    crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'), ... % removing trailing file index,
+    crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'), ... % removing trailing file index
     'suffix',suff_4D); % Adding 4D suffix
 V4 = spm_file_merge(fn_D, fn_data_2cor); %#ok<*NASGU>
+
+if fl_mean % deal with mean image as last of series
+    fn_mean = fn_D(end,:);
+end
 
 %% Apply the warps
 % Call to mid-level function to apply the unwarping
@@ -59,7 +80,7 @@ if status
     error('DockerTU:WarpEstimate',err_msg); %#ok<*SPERR>
 end
 
-if flag_clean, delete(fn_data_2cor), end
+if fl_clean, delete(fn_data_2cor), end
 
 %% Unpack images
 % Use spm_file_split.m function to 4D->3D split the set of images
@@ -77,8 +98,19 @@ movefile(fn_data_cord,fn_data_cord_nosf)
 Vo = spm_file_split(fn_data_cord_nosf);
 fn_uwd = char(Vo(:).fname);
 
+% Deal with mean, if requested
+if fl_mean
+    % move (=rename) mean file
+    fn_umean = spm_file(fn_mean,'prefix',pref_uw);
+    movefile(fn_uwd(end,:),fn_umean);
+    % clean up the list
+    fn_uwd(end,:) = [];
+else
+    fn_umean = [];
+end
+
 % Cleaning, if requested
-if flag_clean 
+if fl_clean 
     delete(fn_data_cord_gz)
     delete(fn_data_cord_nosf)
 end
