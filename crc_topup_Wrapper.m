@@ -1,4 +1,4 @@
-function fn_urfunc = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, fn_Config)
+function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, fn_Config)
 % Function to automatize the processing by taking as input the set of
 % many functional images to unwarp & realign, plus a few "fieldmap" images 
 % with the phase-encdoding in the opposite direction.
@@ -43,14 +43,21 @@ fn_D2 = fn_fmap(1:2,:);
 fn_TUsc = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn_Config);
 
 %% Realign and resample the functional data
-% for the moment, using all the default parameters
+% for the moment, using all the default parameters except for prefix, set 
+% to 'r_' instead of 'r' for BIDS compatibility.
+rr_prefix = 'r_';
+
+% Estimate realignement and resample
 spm_realign(fn_func);
-spm_reslice(fn_func)
+spm_reslice(fn_func,struct('prefix',rr_prefix)) % with 'r_' prefix
 % get the name of realigned and resliced functional images
-fn_func_rr = spm_file(fn_func,'prefix',spm_get_defaults('realign.write.prefix'));
+fn_func_rr = spm_file(fn_func,'prefix',rr_prefix);
+fn_func_mean = spm_file(fn_func(1,:),'prefix','mean');
 
 %% Apply the warps on r&r functional images
-% Call to mid-level function to apply the unwarping
-fn_urfunc = crc_topup_WarpApply(fn_func_rr, fn_Acqpar, fn_TUsc);
+% Call to mid-level function to apply the unwarping, 
+% indicating that last volume is the mean
+fn_D = char(fn_func_rr , fn_func_mean); % functional + mean
+[fn_urfunc, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, 1);
 
 end
