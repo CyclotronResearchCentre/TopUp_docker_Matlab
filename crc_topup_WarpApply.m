@@ -6,6 +6,14 @@ function [fn_uwd, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, fl_m
 % If a mean image is included as the last image of the series, then it is
 % recovered on its own at then end if the flag is set to 1!
 % 
+% There is some issue with as the process needs repackaging data 3D series 
+% into 4D file then back into a 3D series. This would clutter the resulting
+% filename with multiple suffixes: 1st 3D index from 1st 4D->3D splitting, 
+% suffix used for the 4D file, and 2nd 3D index from 3nd 4D->3D splitting. 
+% So the code cleans up the suffixes as much as possible, removing the 1st 
+% 3D index (if possible) and 4D file suffixes. Plus trying to reset the 2nd
+% 3D index to that of the 1st 3D index.
+% 
 % INPUT
 % fn_D      : set (char array) of 3D images to unwarp
 % fn_Acqpar : filename of corresping acquisition parameters, where the 1st
@@ -18,24 +26,28 @@ function [fn_uwd, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, fl_m
 % fn_umean    : filename of unwarped mean image
 % 
 % NOTES
-% The outputfile from the TopUp unwarping is in Float32 format, depsite the
-% fact that input images are in Int16. Not sure if it matters but it would
-% be nicer to avoid data bloating because of the format change...
+% - The output file from the TopUp unwarping is in Float32 format, despite 
+%   the fact that input images are in Int16. Not sure if it matters but it 
+%   would be nicer to avoid data bloating because of the format change...
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
 
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
-%% Parameters & checks
-pref_uw = 'u'; % prefix of resulting unwapred image file
-suff_4D = '_4D';  % suffix used for the 4D file with images to correct
-fl_clean = true; % flag indicating the cleaning of intermediate files
+%% Flags
+fl_clean = true; % cleaning up (=deleting) of intermediate files
+fl_renumber_fn = true; % renumbering of the end files according to the 
+                       % original indexing from 1st 4D->3D split
 if nargin<4,
     % assume the last image of the input series is just another image and 
     % NOT the mean image from realign & reslice
     fl_mean = false;
 end
+
+%% Parameters & checks
+pref_uw = 'u'; % prefix of resulting unwapred image file
+suff_4D = '_4D';  % suffix used for the 4D file with images to correct
 
 if nargout==2 && ~fl_mean
     warning('Topup:Apply', ...
@@ -48,12 +60,16 @@ setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
 setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Prepare images
-% Use spm_file_merge function to 3D->4D pack the set of images
-% removing the _01234 indexing suffix from spm_split
+% Removing the '_01234' indexing suffix (from spm_split) on 1st volume to
+% build the 4D filename, with '_4D' suffix.
 
-fn_data_2cor = spm_file( ...
-    crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'), ... % removing trailing file index
-    'suffix',suff_4D); % Adding 4D suffix
+[fn_D_nosf,sf_D] = crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'); 
+fn_data_2cor = spm_file(  fn_D_nosf, 'suffix',suff_4D); % Adding 4D suffix
+% Then get value of 1st index 
+if ~isempty(sf_D)
+    startId_fn_D = str2double(sf_D(2:end));
+end    
+% Use spm_file_merge function to 3D->4D pack the set of images
 V4 = spm_file_merge(fn_D, fn_data_2cor); %#ok<*NASGU>
 
 if fl_mean % deal with mean image as last of series
@@ -107,6 +123,14 @@ if fl_mean
     fn_uwd(end,:) = [];
 else
     fn_umean = [];
+end
+
+% Reset indexes as in original series, if requested and possible
+if fl_renumber_fn || ~isempty(startId_fn_D)
+    fn_uwd = crc_renumber_fn(fn_uwd,struct('start',startId_fn_D));
+else
+    warning('Topup:Apply', ...
+        'Cannot renumber file suffix as requested!');    
 end
 
 % Cleaning, if requested
