@@ -74,4 +74,4 @@ qsdf
 ---
 ## NOTES
 
-While the input data are in `int16` format, the images obtained after the topup correction are in `float32` format! Not sure if such a resolution is necessary and, morover this could have some impact on how implicit masking is handled in SPM: zero is a valid value in `float32` but masked out in `int16`.
+While the input data are in `int16` format, the images obtained after the topup correction are in `float32` format! Not sure if such a resolution is necessary and, moreover this could have some impact on how implicit masking is handled in SPM: zero is a valid value in `float32` but masked out in `int16`.

@@ -109,7 +109,7 @@ pth_Dfunc = fullfile(spm_file(fn_func4D,'path'),'dummies'); mkdir(pth_Dfunc)
 pth_Dfmap = fullfile(spm_file(fn_fmap4D,'path'),'dummies'); mkdir(pth_Dfmap)
 for ii = 1:Ndum
     movefile( char(V_func3D(ii).fname), pth_Dfunc)
-    movefile( char(V_fmap3D(ii).fname), pth_Dfunc)
+    movefile( char(V_fmap3D(ii).fname), pth_Dfmap)
 end
 fn_func3D = char(V_func3D(Ndum+1:end).fname);
 fn_fmap3D = char(V_fmap3D(Ndum+1:end).fname);
