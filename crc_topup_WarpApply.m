@@ -126,8 +126,8 @@ else
 end
 
 % Reset indexes as in original series, if requested and possible
-if fl_renumber_fn || ~isempty(startId_fn_D)
-    fn_uwd = crc_renumber_fn(fn_uwd,struct('start',startId_fn_D));
+if fl_renumber_fn && ~isempty(startId_fn_D)
+    fn_uwd = crc_renumber_fn(fn_uwd,struct('idshift',startId_fn_D-1));
 else
     warning('Topup:Apply', ...
         'Cannot renumber file suffix as requested!');    
