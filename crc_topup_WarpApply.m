@@ -1,5 +1,7 @@
 function [fn_uwd, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, fl_mean)
-% High-level function to apply the topup unwarp to one set of images.
+%% Apply the topup unwarp to one set of images,
+% high-level function
+% 
 % Takes in the bunch of images to correct an "acquisition parameter" file
 % whose 1st line match that of the data to correct, and the spline
 % coeficient image. 

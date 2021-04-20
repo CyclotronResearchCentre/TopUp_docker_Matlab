@@ -1,4 +1,6 @@
-%% Apply TopUp, medium level function
+function [status, cmd_out] = crc_topup_apply(fn_imain, fn_datain, inindex, fn_topup, method, interp, b_out)
+%% Apply TopUp, 
+% medium level function
 % 
 % This function calls "applytopup" from inside the docker image.
 % Parameters
@@ -25,8 +27,6 @@
 
 % Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
-
-function [status, cmd_out] = crc_topup_apply(fn_imain, fn_datain, inindex, fn_topup, method, interp, b_out)
 
 % Checking if parameters are in the data folder
 [i_pth, imain_name, imain_ext] = fileparts(fn_imain);

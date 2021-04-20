@@ -1,11 +1,16 @@
 function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, fn_Config)
-% Function to automatize the processing by taking as input the set of
-% many functional images to unwarp & realign, plus a few "fieldmap" images
+%% Wrapper for fmri/fmap data
+% 
+% The function automatizes the processing by taking as input the set of
+% many functional images to unwarp & realign, with a few "fieldmap" images
 % with the phase-encdoding in the opposite direction.
 %
 % This wraps arround the other 2 high-level functions:
 % - crc_topup_WarpEstimate : estimate the warps from 2 sets of images
 % - crc_topup_WarpApply    : apply the warps on one set of images
+% as well as 2 functions from SPM, in between the TopUp estimate & apply:
+% - spm_realign \_ to realign and reslice the images
+% - spm_reslice /
 %
 % The processing consits in 3 main steps, relying on the other 2 high-level
 % functions, 'crc_topup_WarpEstimate' & 'crc_topup_WarpApply' and SPM:

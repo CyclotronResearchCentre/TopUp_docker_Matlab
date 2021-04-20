@@ -1,4 +1,6 @@
-%% TopUp estimate, medium level function
+function [status, cmd_out] = crc_topup_estimate(fn_imain, fn_datain, fn_config, b_out)
+%% TopUp estimate, 
+% medium level function
 % 
 % This function calls topup from inside the docker image to estimate:
 % - the deformation field (spline coefficients to be used with TopUpApply)
@@ -24,8 +26,6 @@
 
 % Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
-
-function [status, cmd_out] = crc_topup_estimate(fn_imain, fn_datain, fn_config, b_out)
 
 % Split full filenames to get 
 % - the pathes -> check and make sure everything is the same folder

@@ -1,4 +1,6 @@
-%% Define FSL function
+function [status, cmd_out] = crc_fsl(cmd, twd)
+%% Define FSL call function
+% 
 % Call FSL from inside a docker image.
 % Parameters
 %   cmd : The command to run inside the docker.
@@ -12,7 +14,7 @@
 % Notes
 %   This function requires the 'DOCKER_EXEC' and 'FSL_IMG' environment
 %   variables to be defined.
-%   This function works in a temporary directory and copies all the
+%   This function works in a specific directory and copies all the
 %   required input files into that directory.
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
@@ -20,9 +22,7 @@
 % Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
-function [status, cmd_out] = crc_fsl(cmd, twd)
-
-% Run the FSL command
+% Prepare the FSL-docker command
 docker_exec = getenv('DOCKER_EXEC');
 fsl_img = getenv('FSL_IMG');
 docker_cmd = sprintf('%s run --rm -v %s:/home/fsl %s', ...
