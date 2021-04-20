@@ -14,8 +14,14 @@
 %   variables to be defined.
 %   This function works in a temporary directory and copies all the
 %   required input files into that directory.
+%__________________________________________________________________________
+% Copyright (C) 2020 Cyclotron Research Centre
+
+% Written by M. Grignard & C. Phillips, 2020.
+% GIGA Institute, University of Liege, Belgium
 
 function [status, cmd_out] = fsl(cmd, in_files, out_patterns)
+
 % Create temporary directory
 cwd = pwd;
 twd = tempname(tempdir);
