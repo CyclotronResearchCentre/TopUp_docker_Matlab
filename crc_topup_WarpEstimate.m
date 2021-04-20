@@ -24,8 +24,8 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn
 %   the "fmap" folder.
 % 
 % TO CHECK
-% - If frames from a 4D image file are passed in fn_D1 ou fn_D2 instead or a 
-%   list of 3D images, will this work?
+% - If frames from a 4D image file are passed in fn_D1 ou fn_D2 instead or  
+%   a list of 3D images, will this work?
 % - Must check the input formats and match with the acquisition parameter
 %   file
 %__________________________________________________________________________
@@ -37,14 +37,14 @@ function [fn_TUsc, fn_TUhz] = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn
 %% No check on input for the moment
 
 %% Parameters
-pref_sc = 'TUsc_'; % estimated spline coefficients
-pref_hf = 'TUfh_'; % estimated field in Hertz
+pref_sc = crc_topup_get_defaults('pref_sc'); % estimated spline coefficients
+pref_hf = crc_topup_get_defaults('pref_hf'); % estimated field in Hertz
+suff_4D  = crc_topup_get_defaults('suff_4D');% 4D files with images in both PE directions
 
-%% Setup, Docker attributes
-% -> should it be defined somewhere else or if at all?
-setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
-setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
-
+% %% Setup, Docker attributes
+% % -> should it be defined somewhere else or if at all?
+% setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
+% setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Dealing with the output folder
 if nargin<5 || isempty(dOut)
@@ -57,7 +57,7 @@ if ~exist(dOut,'dir'), mkdir(dOut); end
 % -> this file is suffixed with '_4TUest' and placed in 'dOut'
 fn_fmapfunc4D_topup = spm_file(... 
     crc_rm_suffix(fn_D1(1,:),'_\d{5,5}$'), ... % removing trailing file index
-    'suffix','_4TUest','path',dOut); % update suffix & path
+    'suffix', suff_4D, 'path', dOut); % update suffix & path
 V4fmapfunc4D_topup = spm_file_merge(char(fn_D1,fn_D2),fn_fmapfunc4D_topup); %#ok<*NASGU>
 
 %% Estimate the warps
@@ -75,8 +75,9 @@ end
 
 % Generate output filenames, as created by crc_topup_estimate
 fn_TUsc = spm_file(fn_fmapfunc4D_topup, ...
-    'prefix',pref_sc, 'suffix','_fieldcoef', 'ext','.nii.gz');
-fn_TUhz = spm_file(fn_fmapfunc4D_topup, 'prefix',pref_hf, 'ext','.nii.gz');
+    'prefix', pref_sc, 'suffix', '_fieldcoef', 'ext', '.nii.gz');
+fn_TUhz = spm_file(fn_fmapfunc4D_topup, ...
+    'prefix', pref_hf, 'ext', '.nii.gz');
 
 %% Clean up the plate
 % Should be removing the files that are not needed any more?

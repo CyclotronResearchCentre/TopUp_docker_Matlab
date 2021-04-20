@@ -38,9 +38,10 @@ function [fn_uwd, fn_umean] = crc_topup_WarpApply(fn_D, fn_Acqpar, fn_TUsc, fl_m
 % GIGA Institute, University of Liege, Belgium
 
 %% Flags
-fl_clean = true; % cleaning up (=deleting) of intermediate files
-fl_renumber_fn = true; % renumbering of the end files according to the 
-                       % original indexing from 1st 4D->3D split
+fl_clean = crc_topup_get_defaults('fl_clean'); 
+% cleaning up (=deleting) of intermediate files
+fl_renumber_fn = crc_topup_get_defaults('fl_renumber_fn'); 
+% renumbering of the end files according to the original indexing from 1st 4D->3D split
 if nargin<4,
     % assume the last image of the input series is just another image and 
     % NOT the mean image from realign & reslice
@@ -48,18 +49,13 @@ if nargin<4,
 end
 
 %% Parameters & checks
-pref_uw = 'u'; % prefix of resulting unwapred image file
-suff_4D = '_4D';  % suffix used for the 4D file with images to correct
+pref_uw = crc_topup_get_defaults('pref_uw'); % prefix of resulting unwapred image file
+suff_4D = crc_topup_get_defaults('suff_4D');  % suffix used for the 4D file with images to correct
 
 if nargout==2 && ~fl_mean
     warning('Topup:Apply', ...
         'The mean file is not flagged up so the returned filename will be empty!');
 end
-
-%% Setup, Docker attributes
-% -> should it be defined somewhere else or if at all?
-setenv('DOCKER_EXEC', 'docker');            % The command to run docker.
-setenv('FSL_IMG', 'topup:6.0.3-20210212');  % The name of the topup image.
 
 %% Prepare images
 % Removing the '_01234' indexing suffix (from spm_split) on 1st volume to
