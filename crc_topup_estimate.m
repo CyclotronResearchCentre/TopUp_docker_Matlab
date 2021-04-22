@@ -49,5 +49,5 @@ cmd = sprintf( ...
     [deblank(b_out(1,:)),imain_name], ...
     [deblank(b_out(2,:)),imain_name] );
 
-[status, cmd_out] = crc_fsl(cmd, i_pth);
+[status, cmd_out] = crc_fsl(cmd, i_pth, 'TUest');
 end
