@@ -41,7 +41,8 @@ function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, f
 % GIGA Institute, University of Liege, Belgium
 
 %% Parameters & checks
-N_fn = 2; % number of files to be used in each PE direction
+N_fn = crc_topup_get_defaults('N_fn'); 
+% number of files to be used in each PE direction, picked at the beginning
 fl_param = check_params(fn_Acqpar,N_fn); % true if OK
 if ~fl_param
     error('DockerTU:Wrapper', ...
@@ -58,11 +59,11 @@ fn_TUsc = crc_topup_WarpEstimate(fn_D1, fn_D2, fn_Acqpar, fn_Config);
 %% Realign and resample the functional data
 % for the moment, using all the default parameters except for prefix, set
 % to 'r_' instead of 'r' for BIDS compatibility.
-rr_prefix = 'r_';
+rr_prefix = crc_topup_get_defaults('rr_prefix');
 
 % Estimate realignement and resample
 spm_realign(fn_func);
-spm_reslice(fn_func,struct('prefix',rr_prefix)) % with 'r_' prefix
+spm_reslice(fn_func,struct('prefix',rr_prefix)) 
 % get the name of realigned and resliced functional images
 fn_func_rr = spm_file(fn_func,'prefix',rr_prefix);
 fn_func_mean = spm_file(fn_func(1,:),'prefix','mean');

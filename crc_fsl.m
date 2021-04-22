@@ -22,18 +22,36 @@ function [status, cmd_out] = crc_fsl(cmd, twd)
 % Written by M. Grignard & C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
-% Prepare the FSL-docker command
-docker_exec = getenv('DOCKER_EXEC');
-fsl_img = getenv('FSL_IMG');
+% Flag to save, or not, the shell script command
+fl_save_shscr = crc_topup_get_defaults('fl_save_shscr');
+
+%% Prepare the FSL-docker command
+% docker_exec = getenv('DOCKER_EXEC');
+docker_exec = 'docker'; % hardcoded for Docker
+fsl_img = crc_topup_get_defaults('fsl_img');
 docker_cmd = sprintf('%s run --rm -v %s:/home/fsl %s', ...
     docker_exec, twd, fsl_img);
 
-% Send the 'cmd' to the Docker via the 'docker_cmd'
+%% Send the 'cmd' to the Docker via the 'docker_cmd'
 full_cmd = sprintf('%s %s', docker_cmd, cmd);
+if fl_save_shscr
+    % save TopUp call
+    fn_sh = fullfile(twd,'crc_topup.sh'); cc = 0;
+    while exist(fn_sh,'file')
+        % If file already exist, add an index as a suffix
+        cc = cc+1;
+        fn_sh = fullfile( twd, ...
+            sprintf('crc_topup_%d.sh',cc) );
+    end
+    % save in new shell file, discard existing contents 
+    fid = fopen(fn_sh,'w');
+    fprintf(fid,'%s',full_cmd);
+    fclose(fid) ;
+end
 [status, cmd_out] = system( full_cmd );
 
 if status % something went wrong
-    fprintf('\nPROBLEM: this command did not work: \n%s\n',full_cmd)
+    fprintf('\nPROBLEM: this command did not work: \n%s\n',full_cmd);
     fprintf('\nOutput message states: \n%s\n',cmd_out);
 end
 
