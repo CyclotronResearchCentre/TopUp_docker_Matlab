@@ -60,7 +60,7 @@ cmd = sprintf( ...
     [b_out,imain_name] );
 
 % call to fsl-topup
-[status, cmd_out] = crc_fsl(cmd, i_pth);
+[status, cmd_out] = crc_fsl(cmd, i_pth, 'TUapp');
 
 % remove the topup spline coef splines
 delete(fullfile(i_pth, [topup_name, topup_ext]));
