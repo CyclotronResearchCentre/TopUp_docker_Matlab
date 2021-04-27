@@ -112,7 +112,7 @@ end
 fn_func_mean = spm_file(fn_func_c{1}(1,:),'prefix','mean');
 if ~exist(fn_func_mean,'file')
     fn_func_mean = '';
-    fn_fun_mean = '';
+    fn_umean = '';
     % in case it was not created...
 end
 
