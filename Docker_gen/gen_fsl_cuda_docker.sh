@@ -46,7 +46,7 @@ echo "Generating Dockerfile..."
 neurodocker generate docker \
     --base=nvidia/cuda:8.0-runtime \
     --pkg-manager=apt \
-    --install openssl \
+    --install openssl libopenblas-base \
     --fsl \
         version="${FSL_VERSION}" \
         install_path="/fsl" \
