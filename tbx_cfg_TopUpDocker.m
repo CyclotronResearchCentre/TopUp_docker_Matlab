@@ -6,6 +6,7 @@ function TUdocker = tbx_cfg_TopUpDocker
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
+% Checking path
 if ~isdeployed, addpath(fullfile(spm('dir'),'toolbox','TopUpDocker')); end
 
 % The toolbox is currently split into 3 separate modules

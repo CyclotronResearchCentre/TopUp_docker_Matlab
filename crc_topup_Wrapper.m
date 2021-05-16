@@ -136,7 +136,6 @@ fn_func_rp = char(fn_func_c_rp);
 fn_func_mean = spm_file(fn_func_c{1}(1,:),'prefix','mean');
 if ~exist(fn_func_mean,'file')
     fn_func_mean = '';
-    fn_umean = '';
     % in case it was not created...
 end
 
@@ -153,9 +152,11 @@ for i_sess = 1:N_sess
         fn_urfunc_c{i_sess} = ...
             crc_topup_WarpApply( ...
                 fn_func_c_rr{i_sess}, fn_Acqpar, fn_TUsc{i_sess}, 0);
+        fn_umean = []; % no unwarped mean returned
     end
 end
 
+%% Format output, as input
 if fl_char
     % return char arrays if input was a char array, i.e. single session
     fn_urfunc = char(fn_urfunc_c);
