@@ -1,4 +1,4 @@
-function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, fn_Config)
+function [fn_urfunc, fn_func_rp, fn_umean] = crc_topup_Wrapper(fn_func, fn_fmap, fn_Acqpar, fn_Config, N_fn)
 %% Wrapper for fmri/fmap data
 % 
 % The function automatizes the processing by taking as input the set of
@@ -34,18 +34,23 @@ function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, f
 %             or cell array of these for multiple sessions
 % fn_Acqpar : filename of the acquisition parameter
 % fn_Config : filename of the config file for TopUp
+% N_fn      : Number of files to use for fun & fmap data TopUp estimate. 
+%             This should absolutely match the rows in fn_Acqpar ! 
 %
 % OUTPUT
-% fn_urfunc : char array of filenames of the functional images after
-%             realignement and topup unwarping, or cell array of these for 
-%             multiple sessions
-% fn_umean  : filename of the unwarped mean functional image, if it was
-%             created during the realignment.
+% fn_urfunc  : char array of filenames of the functional images after
+%              realignement and topup unwarping, or cell array of these for 
+%              multiple sessions
+% fn_func_rp : char array of the filenames of the realignement parameters
+%              for each session
+% fn_umean   : filename of the unwarped mean functional image, if it was
+%              created during the realignment.
 %
 % NOTES
-% So far the code considers that 2 func and 2 fmap images (2 is a default 
-% parameter) should be used for the TU estimates, which MUST correspond to 
-% the acquisition parameters in the acquisition parameter (fn_Acqpar) file!
+% So far the code considers that N_fn(1) func and N_fn(2) fmap images (set 
+% as default parameter) should be used for the TU estimates, which MUST 
+% correspond to the acquisition parameters in the acquisition parameter 
+% (fn_Acqpar) file!
 % 
 %__________________________________________________________________________
 % Copyright (C) 2021 Cyclotron Research Centre
@@ -54,8 +59,20 @@ function [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func,fn_fmap, fn_Acqpar, f
 % GIGA Institute, University of Liege, Belgium
 
 %% Parameters & checks
-N_fn = crc_topup_get_defaults('N_fn'); 
-% number of files to be used in each PE direction, picked at the beginning
+if nargin<5
+    N_fn = crc_topup_get_defaults('N_fn'); 
+    % number of files to be used in each PE direction, picked at the beginning
+    warning('DockerTU:wrapper','Using default number of PE files :\n\t%d %d\n',N_fn);
+end
+if nargin<4 || ~exist(fn_Config,'file')
+    fn_Config = crc_topup_get_defaults('fn_cnf');
+    warning('DockerTU:wrapper','Using default config file :\n\t%s\n',fn_Config);
+end
+if nargin<3 || ~exist(fn_Acqpar,'file')
+    fn_Acqpar = crc_topup_get_defaults('fn_acq');
+    warning('DockerTU:wrapper','Using default acquisition file :\n\t%s\n',fn_Acqpar);
+end
+
 fl_param = check_params(fn_Acqpar,N_fn); % true if OK
 if ~fl_param
     error('DockerTU:Wrapper', ...
@@ -88,9 +105,9 @@ end
 % Loop through the sessions
 fn_TUsc = cell(N_sess,1);
 for i_sess = 1:N_sess
-    % Pick 2 func and fmap images
-    fn_D1 = fn_func_c{i_sess}(1:N_fn,:);
-    fn_D2 = fn_fmap_c{i_sess}(1:N_fn,:);
+    % Pick N_fn func and fmap images
+    fn_D1 = fn_func_c{i_sess}(1:N_fn(1),:);
+    fn_D2 = fn_fmap_c{i_sess}(1:N_fn(2),:);
 
     fn_TUsc{i_sess} = crc_topup_WarpEstimate(fn_D1, fn_D2, ...
         fn_Acqpar, fn_Config);
@@ -104,11 +121,18 @@ rr_prefix = crc_topup_get_defaults('rr_prefix');
 % Estimate realignement and resample
 spm_realign(fn_func_c);
 spm_reslice(fn_func_c,struct('prefix',rr_prefix)) 
-% get the name of realigned and resliced functional images
+% get the name of 
+% - realigned and resliced functional images
+% - estimated realignement parameters .txt file
 fn_func_c_rr = cell(N_sess,1);
+fn_func_c_rp = cell(N_sess,1);
 for i_sess = 1:N_sess
     fn_func_c_rr{i_sess} = spm_file(fn_func_c{i_sess},'prefix',rr_prefix);
+    fn_func_c_rp{i_sess} = spm_file(fn_func_c{i_sess}(1,:), ...
+        'prefix','rp_', 'ext','.txt');
 end
+fn_func_rp = char(fn_func_c_rp);
+
 fn_func_mean = spm_file(fn_func_c{1}(1,:),'prefix','mean');
 if ~exist(fn_func_mean,'file')
     fn_func_mean = '';
@@ -147,20 +171,22 @@ end
 % and the acquisition parameter file
 
 function fl_param = check_params(fn_Acqpar,N_fn)
-% Checking if the acquisition parameter matches the number of files for 
-% each PE direction, using 2 criteria:
-% - there should be twice as many lines as number of files per PE direction
-% - the number of files in one PE direction, assuming y direction only,
-%   should match number of rows for PE=1 in the acquisition parameter.
+% Checking if the acquisition parameter matches the number of files to be 
+% used for each PE direction, using 2 criteria:
+% - there should be as many lines as number of files for both PE directions
+% - the number of lines in each PE direction, *assuming Y direction only*,
+%   should match number of PE=1/-1 rows in the acquisition parameter.
 
 % Assume it's OK
 fl_param = true;
 
 % Load acquisition parameters
 acqpar = spm_load(fn_Acqpar);
+N_PE(1) = numel(find(acqpar(:,2)==acqpar(1,2))); % 1st set
+N_PE(2) = numel(find(acqpar(:,2)==acqpar(N_PE1+1,2))); % 2nd set
 
 % There should be twice as many lines as number of files per PE direction
-if size(acqpar,1)~=2*N_fn || length(find(acqpar(:,2)==1))~=N_fn
+if size(acqpar,1)~=sum(N_fn) || N_PE(1)~=N_fn(1) || N_PE(2)~=N_fn(2)
     fl_param = false;  
 end
 

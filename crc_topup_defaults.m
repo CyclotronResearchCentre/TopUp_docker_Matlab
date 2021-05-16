@@ -36,21 +36,22 @@ TUdef.suff_4D = '_4D';
 
 %% TopUp wrapper for fMRI
 % =======================
-TUdef.N_fn = 2; 
-% number of files to use at the beginning of each series
+TUdef.N_fn = [2 2]; 
+% number of files to use at the beginning of func and fmap series
 TUdef.rr_prefix = 'r_'; 
 % prefix for reslicing of realigned fMRI, set to 'r_' (instead of 'r') for 
 % BIDS compatibility.
 
 %% Parameter files
 % ================
+TUdef.pth = spm_file(mfilename('fullpath'),'fpath');
 % Configuration file for the estimation
-TUdef.fn_cnf = fullfile(mfilename('fullpath'),'Parameters','b02b0.cnf');
+TUdef.fn_cnf = fullfile(TUdef.pth,'Parameters','b02b0.cnf');
 % Could certainly be left as is.
 % https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide#Configuration_files
 
 % Acquisition parameter file MUST be adapted to your data
-TUdef.fn_acq = fullfile(mfilename('fullpath'),'Parameters','acqparams.txt');
+TUdef.fn_acq = fullfile(TUdef.pth,'Parameters','acqparams.txt');
 % https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide#A--datain
 
 %% Environment variables, for the low level function
