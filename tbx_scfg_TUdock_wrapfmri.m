@@ -7,36 +7,36 @@ function TUwrapfmri = tbx_scfg_TUdock_wrapfmri
 % GIGA Institute, University of Liege, Belgium
 
 %--------------------------------------------------------------------------
-% fmri_fn Session fmri data
+% fn_fmri Session fmri data
 %--------------------------------------------------------------------------
-fmri_fn         = cfg_files;
-fmri_fn.tag     = 'fmri_fn';
-fmri_fn.name    = 'fMRI data';
-fmri_fn.help    = {
+fn_fmri         = cfg_files;
+fn_fmri.tag     = 'fn_fmri';
+fn_fmri.name    = 'fMRI data';
+fn_fmri.help    = {
     'Select fMRI scans for this session.'
     ['These are the all the functional MRIs for this session, encoded ', ...
-    'with a known "Phase Encoding" direction.']
+    'with a known "Phase Encoding" (PE) direction.']
     }';
-fmri_fn.filter  = 'image';
-fmri_fn.ufilter = '.*';
-fmri_fn.num     = [1 Inf];
-fmri_fn.preview = @(f) spm_check_registration(char(f));
+fn_fmri.filter  = 'image';
+fn_fmri.ufilter = '.*';
+fn_fmri.num     = [1 Inf];
+fn_fmri.preview = @(f) spm_check_registration(char(f));
 
 %--------------------------------------------------------------------------
-% fmap_fn Session fmap data
+% fn_fmap Session fmap data
 %--------------------------------------------------------------------------
-fmap_fn         = cfg_files;
-fmap_fn.tag     = 'fmap_fn';
-fmap_fn.name    = 'fmap data';
-fmap_fn.help    = {
+fn_fmap         = cfg_files;
+fn_fmap.tag     = 'fn_fmap';
+fn_fmap.name    = 'fmap data';
+fn_fmap.help    = {
     'Select fmaps for this session.'
     ['These are the few images acquired with the oppositite "Phase Encoding', ...
-    'direction, wrt. to the fMRIs.']
+    ' (PE) direction, wrt. to the fMRIs.']
     }';
-fmap_fn.filter  = 'image';
-fmap_fn.ufilter = '.*';
-fmap_fn.num     = [1 Inf];
-fmap_fn.preview = @(f) spm_check_registration(char(f));
+fn_fmap.filter  = 'image';
+fn_fmap.ufilter = '.*';
+fn_fmap.num     = [1 Inf];
+fn_fmap.preview = @(f) spm_check_registration(char(f));
 
 %--------------------------------------------------------------------------
 % data Sessions
@@ -44,11 +44,11 @@ fmap_fn.preview = @(f) spm_check_registration(char(f));
 data      = cfg_branch;
 data.tag  = 'data';
 data.name = 'Sessions';
-data.val  = {fmri_fn fmap_fn};
+data.val  = {fn_fmri fn_fmap};
 data.help = {
     'Data to enter for each session: fMRI series + fmaps.'
     ['TopUp correction is first estimated from a set of 2 (by default ',...
-    'but can be changed) images in each phase encoding direction.']
+    'but can be changed) images in each "Phase Encoding" (PE) direction.']
     ['Then in the coregistration step, the sessions are first realigned to ', ...
     'each other, by aligning the first scan from each session to the ', ...
     'first scan of the first session.  Then the images within each ', ...
@@ -68,6 +68,8 @@ generic.tag    = 'generic';
 generic.name   = 'Data';
 generic.help   = {
     'Add new sessions for this subject.'
+    ['TopUp unwapring is performed per session, with the TU estimation ', ...
+    'before and the TU application after the realignment step.']
     ['In the coregistration step, the sessions are first realigned to ', ...
     'each other, by aligning the first scan from each session to the ', ...
     'first scan of the first session.  Then the images within each ', ...
@@ -79,18 +81,20 @@ generic.values = {data};
 generic.num    = [1 Inf];
 
 %--------------------------------------------------------------------------
-% fwhm Histogram Smoothing
+% N_PEfiles Histogram Smoothing
 %--------------------------------------------------------------------------
-fwhm         = cfg_entry;
-fwhm.tag     = 'fwhm';
-fwhm.name    = 'Histogram Smoothing';
-fwhm.help    = {
-    'Gaussian smoothing to apply to the 256x256 joint histogram.'
-    'Other information theoretic coregistration methods use fewer bins, but Gaussian smoothing seems to be more elegant.'
+N_PEfiles         = cfg_entry;
+N_PEfiles.tag     = 'N_PEfiles';
+N_PEfiles.name    = 'Number of PE files';
+N_PEfiles.help    = {
+    'Number of files per "Phase Encoding" (PE) direction.'
+    ['This is the number of files that will be picked in each image set ', ...
+    'with opposite PE encoding direction. This should ABSOLUTELY match ', ...
+    'the number of lines for each PE in the parameter file.']
     }';
-fwhm.strtype = 'r';
-fwhm.num     = [1 2];
-fwhm.def     = @(val)spm_get_defaults('coreg.estimate.fwhm', val{:});
+N_PEfiles.strtype = 'r';
+N_PEfiles.num     = [1 2];
+N_PEfiles.def     = @(val)crc_topup_get_defaults('N_fn', val{:});
 
 %--------------------------------------------------------------------------
 % fn_param Session fmap data
@@ -100,12 +104,32 @@ fn_param.tag     = 'fn_param';
 fn_param.name    = 'Parameter file';
 fn_param.help    = {
     'Select the parameter file.'
-    ['These are the few images acquired with the oppositite "Phase Encoding', ...
-    'direction, wrt. to the fMRIs.']
+    ['This file contains the acquisition parameters for the ''N_PEfiles'' ', ...
+    'to be used in each PE direction. The number of lines in the paraeter ', ...
+    'file should does be twice that ''N_PEfiles'' value.']
     }';
-fn_param.filter  = 'image';
+fn_param.filter  = 'mat'; % Matlab .mat files or .txt files (assumed to contain
+%                      ASCII representation of a 2D-numeric array)
 fn_param.ufilter = '.*';
-fn_param.num     = [1 1];
+fn_param.num     = [1 1]; % just 1
+fn_param.def     = @(val)crc_topup_get_defaults('fn_acq', val{:});
+
+%--------------------------------------------------------------------------
+% fn_config TopUp config file
+%--------------------------------------------------------------------------
+fn_config         = cfg_files;
+fn_config.tag     = 'fn_config';
+fn_config.name    = 'Config file';
+fn_config.help    = {
+    'Select the config file.'
+    ['The default file comes from the official TopUp distribution, ', ...
+    'the predefined ''b02b0.cnf'' file.']
+    'See https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup/TopupUsersGuide#Configuration_files'
+    }';
+fn_config.filter  = 'any'; % as it's a .cnf file, typically b02b0.cnf
+fn_config.ufilter = '.*\.cnf$';
+fn_config.num     = [1 1]; % just 1
+fn_config.def     = @(val)crc_topup_get_defaults('fn_cnf', val{:});
 
 %--------------------------------------------------------------------------
 % options TU fMRI wrapper options
@@ -113,7 +137,7 @@ fn_param.num     = [1 1];
 options         = cfg_branch;
 options.tag     = 'options';
 options.name    = 'TU fMRI wrapper options';
-options.val     = {fn_param fn_conifg N_PEfiles};
+options.val     = {fn_param fn_config N_PEfiles};
 options.help    = {'Some parameter options.'};
 
 %--------------------------------------------------------------------------
@@ -127,8 +151,84 @@ TUwrapfmri.val   = {generic options};
 TUwrapfmri.help  = { 
     'Automatizing the processing of (multiple sessions of) fMRI series', ...
     'by combining the TopUp estimation & application, with SPM''s realign.'};
-TUwrapfmri.prog  = @TUdock_run_wrapfmri;
+TUwrapfmri.prog  = @run_wrapfmri;
 TUwrapfmri.vout  = @vout_wrapfmri;
 
+end
+
+%==========================================================================
+function dep = vout_wrapfmri(job)
+% TopUp job output collection function
+
+for k=1:numel(job.data)
+    cdep(1)            = cfg_dep;
+    cdep(1).sname      = sprintf('Realignment Param File (Sess %d)', k);
+    cdep(1).src_output = substruct('.','fn_func_rp', '{}',{k});
+    cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
+    cdep(2)            = cfg_dep;
+    cdep(2).sname      = sprintf('Realigned & Unwarped Images (Sess %d)', k);
+    cdep(2).src_output = substruct('.','fn_urfunc', '{}',{k});
+    cdep(2).tgt_spec   = cfg_findspec({{'filter','image','strtype','e'}});
+    if k == 1
+        dep = cdep;
+    else
+        dep = [dep cdep]; %#ok<*AGROW>
+    end
+end
+
+% Was mean image created, according to default settings?
+def_opt_realign_write = spm_get_defaults('realign.write.which');
+if def_opt_realign_write(2)
+    dep(end+1)          = cfg_dep;
+    dep(end).sname      = 'Unwarped Mean Image';
+    dep(end).src_output = substruct('.','fn_umean');
+    dep(end).tgt_spec   = cfg_findspec({{'filter','image','strtype','e'}});
+end
+
+end
+
+%==========================================================================
+function out = run_wrapfmri(job)
+% TopUp job execution function
+% takes a harvested job data structure and call TU wrapper functions to
+% perform computations on the data.
+%
+% INPUT
+%   job    - harvested job data structure (see matlabbatch help)
+% OUTPUT
+%   out    - computation results, usually a struct variable.
+
+% Re-organize the func/fmap data in 2 separate cell arrays
+[fn_func,fn_fmap] = reorganize_data(job);
+
+% Do the job
+[fn_urfunc, fn_func_rp, fn_umean] = crc_topup_Wrapper( ...
+    fn_func, ...
+    fn_fmap, ...
+    job.options.fn_param, ...
+    job.options.fn_config, ...
+    job.options.N_fn);
+
+% Collect output
+out.fn_urfunc = fn_urfunc;
+out.fn_func_rp = fn_func_rp;
+if ~isempty(fn_umean)
+    out.fn_umean = fn_umean;
+    % the field will not exist if no mean image created
+end
+
+end
+
+%==========================================================================
+function [fn_func,fn_fmap] = reorganize_data(job)
+% Re-organize the func/fmap data in 2 separate cell arrays
+
+N_sess = numel(job.data);
+fn_func = cell(N_sess,1);
+fn_fmap = cell(N_sess,1);
+for kk=1:N_sess
+    fn_func{kk} = job.data.fn_fmri;
+    fn_fmap{kk} = job.data.fn_fmap;
+end
 
 end
