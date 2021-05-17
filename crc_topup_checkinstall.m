@@ -23,7 +23,7 @@ Dimg_vers = crc_topup_get_defaults('Dimg_vers');
 flag = ~status;
 if status
     fprintf('\nThere was a problem with Docker.');
-    fprintf('\n\tCheck that Docker is installer and running.');
+    fprintf('\n\tCheck that Docker is installed and running.');
     fprintf('\n\tHere is the error message collected:');
     fprintf('\n\t%s',cmd_out);
     fprintf('\n');
