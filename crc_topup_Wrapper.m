@@ -152,7 +152,9 @@ for i_sess = 1:N_sess
         fn_urfunc_c{i_sess} = ...
             crc_topup_WarpApply( ...
                 fn_func_c_rr{i_sess}, fn_Acqpar, fn_TUsc{i_sess}, 0);
-        fn_umean = []; % no unwarped mean returned
+        if i_sess==1
+            fn_umean = []; % no unwarped mean returned
+        end
     end
 end
 
