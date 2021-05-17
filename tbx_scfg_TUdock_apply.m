@@ -6,6 +6,8 @@ function TUapply = tbx_scfg_TUdock_apply
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
+% NOTE:
+% This bit of interfacing still needs to be written out...
 TUapply = cfg_choice;
 
 

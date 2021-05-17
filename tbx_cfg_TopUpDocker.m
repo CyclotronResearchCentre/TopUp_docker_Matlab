@@ -10,9 +10,9 @@ function TUdocker = tbx_cfg_TopUpDocker
 if ~isdeployed, addpath(fullfile(spm('dir'),'toolbox','TopUpDocker')); end
 
 % The toolbox is currently split into 3 separate modules
+% - TopUp wrapper for fMRI -> tbx_scfg_TUdock_wrapfmri
 % - TopUp estimate -> tbx_scfg_TUdock_estim
 % - TopUp apply -> tbx_scfg_TUdock_apply
-% - TopUp wrapper for fMRI -> tbx_scfg_TUdock_wrapfmri
 
 
 % ---------------------------------------------------------------------
@@ -20,7 +20,7 @@ if ~isdeployed, addpath(fullfile(spm('dir'),'toolbox','TopUpDocker')); end
 % ---------------------------------------------------------------------
 TUdocker         = cfg_choice;
 TUdocker.tag     = 'TUdocker';
-TUdocker.name    = 'Top Up docker Tools';
+TUdocker.name    = 'TopUp Docker Tools';
 TUdocker.help    = {
     'This toolbox is about the TopUp method to correct fMRI and DWI data.'
     ['It includes 3 modules at the moment to: "TopUp estimate" to ', ...
@@ -30,7 +30,7 @@ TUdocker.help    = {
     'of (possibly multiple sessions) fMRI data with TU-estimate, ',...
     'realignment, and TU-application.']
     }';
-TUdocker.values  = {tbx_scfg_TUdock_estim tbx_scfg_TUdock_apply tbx_scfg_TUdock_wrapfmri};
+TUdocker.values  = {tbx_scfg_TUdock_wrapfmri tbx_scfg_TUdock_estim tbx_scfg_TUdock_apply };
 end
 
 

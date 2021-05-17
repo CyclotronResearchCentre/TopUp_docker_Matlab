@@ -6,6 +6,8 @@ function TUestim = tbx_scfg_TUdock_estim
 % Written by C. Phillips, 2021.
 % GIGA Institute, University of Liege, Belgium
 
+% NOTE:
+% This bit of interfacing still needs to be written out...
 TUestim = cfg_choice;
 
 end
