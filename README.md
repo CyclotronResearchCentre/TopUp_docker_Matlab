@@ -27,11 +27,13 @@ There is one main drawback to this way of working: one need a full installation 
 
 Can we de better? Yes, probably : 
 
-- Docker is lightweight and can be easily installed on any machine
-- the number-crunching tool, aka. container, can be directly and easily downloaded from DockerHub
-- Docker with its container then become a simple "black-box" executable piece of code, which can be called from the command line or a Matlab script/function!
+- Docker is lightweight and can be easily installed on any machine;
+- the number-crunching tool, aka. TopUp container, can be directly assembled from the full FSL distribution into a not-too-heavy (~350MB) single image;
+- Docker with its container TopUp image then become a simple "black-box" executable piece of code, which can be called from the command line or a Matlab script/function!
 
 This is thus the plan here...
+
+---
 
 ## Some resources
 
