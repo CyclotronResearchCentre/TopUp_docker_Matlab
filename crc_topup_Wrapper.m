@@ -184,7 +184,7 @@ fl_param = true;
 % Load acquisition parameters
 acqpar = spm_load(fn_Acqpar);
 N_PE(1) = numel(find(acqpar(:,2)==acqpar(1,2))); % 1st set
-N_PE(2) = numel(find(acqpar(:,2)==acqpar(N_PE1+1,2))); % 2nd set
+N_PE(2) = numel(find(acqpar(:,2)==acqpar(N_PE(1)+1,2))); % 2nd set
 
 % There should be twice as many lines as number of files per PE direction
 if size(acqpar,1)~=sum(N_fn) || N_PE(1)~=N_fn(1) || N_PE(2)~=N_fn(2)
