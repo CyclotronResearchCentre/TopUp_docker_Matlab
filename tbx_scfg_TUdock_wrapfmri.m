@@ -160,16 +160,16 @@ end
 function dep = vout_wrapfmri(job)
 % TopUp job output collection function
 
-for k=1:numel(job.data)
+for kk=1:numel(job.data)
     cdep(1)            = cfg_dep;
-    cdep(1).sname      = sprintf('Realignment Param File (Sess %d)', k);
-    cdep(1).src_output = substruct('.','fn_func_rp', '{}',{k});
+    cdep(1).sname      = sprintf('Realignment Param File (Sess %d)', kk);
+    cdep(1).src_output = substruct('.','sess', '()',{kk},'.','fn_func_rp');
     cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
     cdep(2)            = cfg_dep;
-    cdep(2).sname      = sprintf('Realigned & Unwarped Images (Sess %d)', k);
-    cdep(2).src_output = substruct('.','fn_urfunc', '{}',{k});
+    cdep(2).sname      = sprintf('Realigned & Unwarped Images (Sess %d)', kk);
+    cdep(2).src_output = substruct('.','sess', '()',{kk},'.','fn_urfunc');
     cdep(2).tgt_spec   = cfg_findspec({{'filter','image','strtype','e'}});
-    if k == 1
+    if kk == 1
         dep = cdep;
     else
         dep = [dep cdep]; %#ok<*AGROW>
@@ -181,7 +181,7 @@ def_opt_realign_write = spm_get_defaults('realign.write.which');
 if def_opt_realign_write(2)
     dep(end+1)          = cfg_dep;
     dep(end).sname      = 'Unwarped Mean Image';
-    dep(end).src_output = substruct('.','fn_umean');
+    dep(end).src_output = substruct('.','fn_umean'); 
     dep(end).tgt_spec   = cfg_findspec({{'filter','image','strtype','e'}});
 end
 
@@ -210,11 +210,13 @@ function out = run_wrapfmri(job)
     job.options.N_PEfiles);
 
 % Collect output
-out.fn_urfunc = fn_urfunc;
-out.fn_func_rp = fn_func_rp;
+for ii=1:numel(job.data)
+    out.sess(ii).fn_urfunc  = cellstr(fn_urfunc);
+    out.sess(ii).fn_func_rp = cellstr(fn_func_rp);
+end
 if ~isempty(fn_umean)
-    out.fn_umean = fn_umean;
-    % the field will not exist if no mean image created
+    out.fn_umean{1} = fn_umean;
+    % the field will be empty if no mean image created
 end
 
 end

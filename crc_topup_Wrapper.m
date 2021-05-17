@@ -135,7 +135,7 @@ fn_func_rp = char(fn_func_c_rp);
 
 fn_func_mean = spm_file(fn_func_c{1}(1,:),'prefix','mean','number','');
 if ~exist(fn_func_mean,'file')
-    fn_func_mean = '';
+    fn_func_mean = [];
     % in case it was not created...
 end
 
