@@ -105,14 +105,14 @@ fn_param.name    = 'Parameter file';
 fn_param.help    = {
     'Select the parameter file.'
     ['This file contains the acquisition parameters for the ''N_PEfiles'' ', ...
-    'to be used in each PE direction. The number of lines in the paraeter ', ...
-    'file should does be twice that ''N_PEfiles'' value.']
+    'to be used in each PE direction. The number of rowss in the parameter ', ...
+    'file should does be equal to the sum of ''#PE files'' value.']
     }';
 fn_param.filter  = 'mat'; % Matlab .mat files or .txt files (assumed to contain
 %                      ASCII representation of a 2D-numeric array)
 fn_param.ufilter = '.*';
 fn_param.num     = [1 1]; % just 1
-fn_param.def     = @(val)crc_topup_get_defaults('fn_acq', val{:});
+fn_param.val     = {{crc_topup_get_defaults('fn_acq')}};
 
 %--------------------------------------------------------------------------
 % fn_config TopUp config file
@@ -129,7 +129,7 @@ fn_config.help    = {
 fn_config.filter  = 'any'; % as it's a .cnf file, typically b02b0.cnf
 fn_config.ufilter = '.*\.cnf$';
 fn_config.num     = [1 1]; % just 1
-fn_config.def     = @(val)crc_topup_get_defaults('fn_cnf', val{:});
+fn_config.val     = {{crc_topup_get_defaults('fn_cnf')}};
 
 %--------------------------------------------------------------------------
 % options TU fMRI wrapper options
@@ -205,9 +205,9 @@ function out = run_wrapfmri(job)
 [fn_urfunc, fn_func_rp, fn_umean] = crc_topup_Wrapper( ...
     fn_func, ...
     fn_fmap, ...
-    job.options.fn_param, ...
-    job.options.fn_config, ...
-    job.options.N_fn);
+    job.options.fn_param{1}, ...
+    job.options.fn_config{1}, ...
+    job.options.N_PEfiles);
 
 % Collect output
 out.fn_urfunc = fn_urfunc;
@@ -227,8 +227,8 @@ N_sess = numel(job.data);
 fn_func = cell(N_sess,1);
 fn_fmap = cell(N_sess,1);
 for kk=1:N_sess
-    fn_func{kk} = job.data.fn_fmri;
-    fn_fmap{kk} = job.data.fn_fmap;
+    fn_func{kk} = char(job.data(kk).fn_fmri);
+    fn_fmap{kk} = char(job.data(kk).fn_fmap);
 end
 
 end
