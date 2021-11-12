@@ -19,7 +19,7 @@ The 2 key elements are the Docker software and the TopUp image itself.
 
 1. You get:
    - the "Docker Desktop" from [here](https://www.docker.com/products/docker-desktop) . After downloading and installing the application, make sure it runs on your system. Note that you can have it start at reboot time or manually launch it from the "Apps" menu only when you need it.
-   - the `topup_6.0.3_20210212.tar` container (~350MB) from this [Dox address]( https://dox.uliege.be/index.php/s/E1YLYwkARhEeiOj) (only at ULiege).
+   - the `topup_6.0.3_20210212.tar` container (~350MB) from this [Dox address]( https://dox.uliege.be/index.php/s/E1YLYwkARhEeiOj) (only at ULiege) or this [OSF project](https://osf.io/br5nx/) (public).
 
 2. Then the TopUp container must be loaded into Docker, via the command line:
 
