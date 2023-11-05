@@ -57,7 +57,8 @@ if ~exist(dOut,'dir'), mkdir(dOut); end
 % -> this file is suffixed with '_4TUest' and placed in 'dOut'
 fn_fmapfunc4D_topup = spm_file(... 
     crc_rm_suffix(fn_D1(1,:),'_\d{5,5}$'), ... % removing trailing file index
-    'suffix', suff_4D, 'path', dOut); % update suffix & path
+    'suffix', suff_4D, 'path', ...  % update suffix & path
+    dOut, 'number', ''); % and removing trailing number, if any
 V4fmapfunc4D_topup = spm_file_merge(char(fn_D1,fn_D2),fn_fmapfunc4D_topup); %#ok<*NASGU>
 
 %% Estimate the warps

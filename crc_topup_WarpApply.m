@@ -62,7 +62,8 @@ end
 % build the 4D filename, with '_4D' suffix.
 
 [fn_D_nosf,sf_D] = crc_rm_suffix(fn_D(1,:),'_\d{5,5}$'); 
-fn_data_2cor = spm_file(  fn_D_nosf, 'suffix',suff_4D); % Adding 4D suffix
+fn_data_2cor = spm_file(  fn_D_nosf, ...
+    'suffix',suff_4D, 'number',''); % Adding 4D suffix & removing number, if any
 % Then get value of 1st index 
 if ~isempty(sf_D)
     startId_fn_D = str2double(sf_D(2:end));
