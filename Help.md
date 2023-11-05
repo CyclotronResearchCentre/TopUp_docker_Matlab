@@ -96,7 +96,7 @@ These functions can be used independently in other tools as they are not relying
   - The input consists in the whole 4D set of images to correct, corresponding parameters, spline coefficients, plus a bunch of other parameters (parameters and output prefix). If all the files are not in the same folder as the images to correct, this is taken care of.
   - The output are the unwarped input images in a gzipped 4D image file, prefixed as requested.
 
-###"High level" functions
+### "High level" functions
 
 These function rely on SPM for some data handling routines.
 
