@@ -126,6 +126,24 @@ fn_D2 = fn_fmap3D(1:2,:);
 % Apply TopUp
 fn_uwD = crc_topup_WarpApply(fn_func3D, fn_Acqpar, fn_TUsc);
 
+% Test wrapper
+[fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func3D,fn_fmap3D, fn_Acqpar, fn_Config);
+
+%% Test for multiple sessions
+pth_BIDSderiv = 'C:\3_Code\topup_docker_data\derivatives\testTopUp';
+pth_Sess1 = fullfile('C:\3_Code\topup_docker_data\derivatives\testTopUp', ...
+    'sub-s008','ses-baseline');
+pth_Sess2 = fullfile('C:\3_Code\topup_docker_data\derivatives\testTopUp', ...
+    'sub-s008','ses-baseline2');
+fn_func3D{1,1} = spm_select('FPListRec',pth_Sess1,'^sub-.*_bold_.*\.nii$');
+fn_func3D{2,1} = spm_select('FPListRec',pth_Sess2,'^sub-.*_bold_.*\.nii$');
+fn_fmap3D{1,1} = spm_select('FPListRec',pth_Sess1,'^sub-.*_epi_.*\.nii$');
+fn_fmap3D{2,1} = spm_select('FPListRec',pth_Sess2,'^sub-.*_epi_.*\.nii$');
+
+% Parameters
+pth_param = 'C:\3_Code\topup_docker_data';
+fn_Acqpar = fullfile(pth_param,'acqparams.txt');
+fn_Config = fullfile(pth_param,'b02b0.cnf');
 
 % Test wrapper
 [fn_urfunc, fn_umean] = crc_topup_Wrapper(fn_func3D,fn_fmap3D, fn_Acqpar, fn_Config);
