@@ -8,7 +8,7 @@ function TUdocker = tbx_cfg_TopUpDocker_redirect
 % The toolbox can therefore be stored in a directory independent from the 
 % SPM implementation and synch'd with the main TUdocker repository whenever
 % needed. If tbx_cfg_TUdocker is not found in the Matlab path, the TUdocker
-% tools % are listed in the SPM Batch GUI but not available. A brief help 
+% tools are listed in the SPM Batch GUI but not available. A brief help 
 % section provides the user with instructions for TUdocker installation.
 %
 % USAGE
@@ -44,7 +44,7 @@ catch %#ok<CTCH>
         'The directory containing the toolbox implementation should be ',...
         'in the Matlab path to be used in SPM. See installation ',...
         'instructions on the TUdocker toolbox repository: ']
-        'https://... NEED TO UPDATE.'
+        'https://github.com/CyclotronResearchCentre/TopUp_docker_Matlab.'
         }';
     TUdocker.val  = {};
 end
