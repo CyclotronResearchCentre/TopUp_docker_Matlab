@@ -105,8 +105,8 @@ fn_param.name    = 'Parameter file';
 fn_param.help    = {
     'Select the parameter file.'
     ['This file contains the acquisition parameters for the ''N_PEfiles'' ', ...
-    'to be used in each PE direction. The number of rowss in the parameter ', ...
-    'file should does be equal to the sum of ''#PE files'' value.']
+    'to be used in each PE direction. The number of rows in the parameter ', ...
+    'file should be equal to the number of ''#PE files'' value.']
     }';
 fn_param.filter  = 'mat'; % Matlab .mat files or .txt files (assumed to contain
 %                      ASCII representation of a 2D-numeric array)
