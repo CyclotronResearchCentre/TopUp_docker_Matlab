@@ -39,7 +39,7 @@ This is thus the plan here...
 
 Things to keep track off:
 
-- the [TopUp page](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup) on the FSL website.
+- the [TopUp page](https://fsl.fmrib.ox.ac.uk/fsl/docs/#/diffusion/topup/index) on the FSL website.
 - the docker-ized version of TopUp is now available in the ['docker' branch](https://gitlab.uliege.be/CyclotronResearchCentre/Methods/topup_docker/tree/docker) of the repo, prepared by MG. Moreover the size of the file has been minimized, see issue #2, to about 355MB instead of several TB!
 - Matlab [`system` command](https://nl.mathworks.com/help/matlab/ref/system.html) to execute operating system command and return output.
 - some code/script for the CRC are available [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/sandpit/run_spatial_preproc_topup_realign_applytopup.m) and [here](https://gitlab.uliege.be/CyclotronResearchCentre/LocalResources/Pipelines/mri/EpiSpatPreproc/blob/master/common/preproc_distcorr_topup_estimate.m). (Note this is on our [ULiege GitLab server](https://gitlab.uliege.be/)).
